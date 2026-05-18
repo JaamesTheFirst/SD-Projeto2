@@ -1,351 +1,528 @@
-/* admin.css */
-
-/* ================================
-   Importação de fontes do Google
-   ================================
-   - Montserrat: usada no botão "+ Adicionar Mobília"
-   - Playfair Display: usada no logo "Mobílubi"
-   - Roboto: usada no texto geral
-   - JetBrains Mono: usada no título "MOBÍLIAS EM STOCK"
-*/
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Playfair+Display:wght@700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+/* admin.css — Dark theme matching login page */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
-/* ================================
-   Reset básico e definições globais
-   ================================
-   Remove margens/paddings padrão e define box-sizing para border-box
-*/
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* ================================================
-   Impede rolagem horizontal em toda a página
-   ================================================ */
 html, body {
-    width: 100%;
-    height: 100%;
-    overflow-x: hidden; /* bloqueia scroll lateral */
+    width: 100%; height: 100%;
+    overflow-x: hidden;
+    background: #1a1410;
 }
 
-/* ================================
-   HEADER MOBÍLIBI
-   ================================
-   Define o header fixo no topo, fundo castanho, e altura de 60px
-*/
-.mb-header {
-    width: 100%;
-    background-color: #4D3B2E;    /* castanho escuro */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    position: fixed;              /* fixa no topo */
-    top: 0;
-    left: 0;
+body {
+    font-family: 'Roboto', sans-serif;
+    color: #FFF8E7;
+}
+
+/* ====== SIDEBAR ====== */
+.sidebar {
+    position: fixed; top: 0; left: 0;
+    width: 240px; height: 100vh;
+    background: linear-gradient(180deg, #4D3B2E 0%, #2d2521 100%);
+    display: flex; flex-direction: column;
     z-index: 1000;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.4);
 }
 
-/* Container interno do header, centralizado e com padding */
-.mb-header .mb-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;          /* alinha logo, menu, estatísticas e logout no mesmo eixo vertical */
-    height: 60px;                 /* altura do header */
-    padding: 0 1rem;
+.sidebar-logo {
+    padding: 2rem 1.5rem 1.5rem;
+    border-bottom: 1px solid rgba(255,248,231,0.1);
 }
 
-/* ================================
-   LOGO "Mobílubi"
-   ================================
-*/
-.mb-logo a {
+.sidebar-logo a {
     font-family: 'Playfair Display', serif;
     font-size: 1.75rem;
-    color: #FFF8E7;               /* bege claro */
+    color: #FFF8E7;
     text-decoration: none;
     letter-spacing: 2px;
 }
 
-/* ================================
-   MENU PRINCIPAL
-   ================================
-   Lista horizontal no header, com item "Mobílias em Stock"
-*/
-.mb-nav {
-    margin-left: 2rem;
-    flex: 1; /* expande para ocupar espaço e empurrar estatísticas e logout para a direita */
+.sidebar-logo span {
+    display: block;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.7rem;
+    color: rgba(255,248,231,0.4);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
 }
 
-.mb-nav ul {
-    list-style: none;
-    display: flex;
-    align-items: center;          /* garante alinhamento vertical de cada item */
-    gap: 2rem;
+.sidebar-nav {
+    flex: 1;
+    padding: 1.5rem 0;
 }
 
-.mb-nav ul li a {
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-    color: #FFF8E7;               /* bege claro */
+.sidebar-nav a {
+    display: flex; align-items: center; gap: 12px;
+    padding: 0.85rem 1.5rem;
+    color: rgba(255,248,231,0.6);
     text-decoration: none;
-    font-size: 1rem;
-    position: relative;
-    padding: 0.5rem 0;            /* espaço vertical para clique e alinhamento */
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-nav a:hover {
+    color: #FFF8E7;
+    background: rgba(212,162,89,0.08);
+    border-left-color: rgba(212,162,89,0.4);
+}
+
+.sidebar-nav a.active {
+    color: #D4A259;
+    background: rgba(212,162,89,0.12);
+    border-left-color: #D4A259;
+    font-weight: 500;
+}
+
+.sidebar-nav a svg {
+    width: 18px; height: 18px;
+    fill: currentColor;
+    flex-shrink: 0;
+}
+
+.sidebar-footer {
+    padding: 1.5rem;
+    border-top: 1px solid rgba(255,248,231,0.1);
+}
+
+.sidebar-footer a {
+    display: flex; align-items: center; gap: 10px;
+    color: rgba(255,248,231,0.5);
+    text-decoration: none;
+    font-size: 0.85rem;
     transition: color 0.2s;
 }
 
-/* ================================
-   ÍCONE DE ESTATÍSTICAS (classe mb-stat)
-   ================================
-   - Herdamos a cor bege claro no SVG
-   - Alinhado verticalmente no header
-   - Posicionado logo à esquerda do ícone de logout
-   - SEM efeitos hover/ativo
-*/
-.mb-stat {
-    display: flex;
-    align-items: center;          /* alinha verticalmente ao centro do header */
-    justify-content: center;
-    width: 28px;                  /* mesmo tamanho dos outros ícones */
-    height: 28px;
-    cursor: pointer;
-    text-decoration: none;        /* remove sublinhado caso seja <a> */
-    margin-right: 1rem;           /* espaço entre estatísticas e logout */
-    transition: transform 0.1s;
+.sidebar-footer a:hover {
+    color: #e74c3c;
 }
 
-.mb-stat svg {
-    fill: #FFF8E7;                /* bege claro */
-    width: 20px;
-    height: 20px;
-    vertical-align: middle;
+.sidebar-footer a svg {
+    width: 18px; height: 18px;
+    fill: currentColor;
 }
 
-.mb-stat:hover {
-    transform: scale(1.1);
+/* ====== MAIN CONTENT ====== */
+.main-content {
+    margin-left: 240px;
+    min-height: 100vh;
+    background: #1a1410;
+    padding: 2rem 2.5rem;
 }
 
-/* ================================
-   ÍCONE DE LOGOUT (mantido igual)
-   ================================
-*/
-.mb-logout {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    cursor: pointer;
-    text-decoration: none;
-    transition: transform 0.1s;
+/* Top bar */
+.top-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 2rem;
 }
 
-.mb-logout svg {
-    fill: #FFF8E7;
-    width: 20px;
-    height: 20px;
-    vertical-align: middle;
-}
-
-.mb-logout:hover {
-    transform: scale(1.1);
-}
-
-/* Ao clicar (ativo/focus) no ícone de logout, muda cor para laranja queimado */
-.mb-logout:active svg,
-.mb-logout:focus svg {
-    fill: #D4A259;
-}
-
-/* ================================
-   DESLOCAMENTO DO CONTEÚDO PRINCIPAL
-   ================================
-   Adiciona margem-top para compensar o header fixo
-*/
-.admin-page {
-    margin-top: 60px;
-    background-color: #FFFFFF;
-    display: flex;
-    width: 100vw;
-    height: calc(100vh - 60px);
-    overflow-x: hidden; /* bloqueia scroll horizontal no container principal */
-    overflow-y: auto;   /* mantém apenas scroll vertical */
-}
-
-/* ================================
-   COLUNA DA LISTA (form-container)
-   ================================
-*/
-.form-container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    background-color: #FFFFFF;
-    padding-top: 1rem;
-    overflow-x: hidden; /* garante que não apareça horizontal scroll aqui */
-}
-
-/* ================================
-   CAIXA INTERNA (form-box)
-   ================================
-*/
-.form-box {
-    width: 600px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    color: #2D2521;
-    position: relative;
-    padding-top: 2rem;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    padding-bottom: 2rem;
-}
-
-/* ================================
-   CONTEÚDO APÓS MARCA (centralizado)
-   ================================
-*/
-.content-after-brand {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 0.5rem;
-}
-
-/* Título principal "MOBÍLIAS EM STOCK" */
-.content-after-brand h1 {
+.top-bar h1 {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    color: #2D2521;
-    font-size: 1.75rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    color: #FFF8E7;
     letter-spacing: 1px;
 }
 
-/* ================================
-   MENSAGEM DE SUCESSO (flash)
-   ================================
-*/
-.success-message {
-    font-family: 'Roboto', sans-serif;
-    color: #D4A259;
-    background: rgba(212, 162, 89, 0.1);
-    padding: 0.75rem 1rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-    width: 100%;
-    text-align: center;
+.top-bar-actions {
+    display: flex; gap: 12px; align-items: center;
 }
 
-/* ================================
-   BOTÃO "+ ADICIONAR MOBÍLIA"
-   ================================
-   Posicionado no canto inferior direito e redondo
-*/
-.btn-submit {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 60px;
-    height: 60px;
+.btn-add {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 0.65rem 1.25rem;
     background: #D4A259;
-    color: #2D2521;
+    color: #1a1410;
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
-    border: none;
-    border-radius: 50%;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-    font-size: 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 0.85rem;
+    border: none; border-radius: 8px;
     text-decoration: none;
-    overflow: hidden;
-    padding: 0;
-    z-index: 500; /* garante que fique acima de outros elementos */
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.btn-submit:hover {
-    background: #B5884A;
+.btn-add:hover {
+    background: #e8b76a;
     transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(212,162,89,0.35);
 }
 
-/* ================================
-   RESPONSIVIDADE PARA TELAS MENORES
-   ================================
-*/
-@media (max-width: 768px) {
-    .form-box {
-        width: 90%;
-        padding-top: 1.5rem;
-    }
+.btn-add svg { width: 16px; height: 16px; fill: currentColor; }
 
-    .content-after-brand {
-        margin-top: 0.25rem;
-    }
-
-    /* Ajusta tamanho do botão para mobile */
-    .btn-submit {
-        width: 50px;
-        height: 50px;
-        font-size: 1rem;
-        bottom: 15px;
-        right: 15px;
-    }
+/* Flash messages */
+.flash-message {
+    padding: 0.85rem 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    display: flex; align-items: center; gap: 10px;
 }
 
+.flash-success {
+    background: rgba(212,162,89,0.12);
+    color: #D4A259;
+    border: 1px solid rgba(212,162,89,0.25);
+}
+
+.flash-error {
+    background: rgba(231,76,60,0.12);
+    color: #e74c3c;
+    border: 1px solid rgba(231,76,60,0.25);
+}
+
+/* ====== TABS ====== */
+.admin-tabs {
+    display: flex; gap: 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(255,248,231,0.08);
+}
+
+.tab-btn {
+    font-family: 'JetBrains Mono', monospace;
+    background: none; border: none;
+    padding: 0.85rem 1.5rem;
+    color: rgba(255,248,231,0.45);
+    font-weight: 500; font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    border-bottom: 2px solid transparent;
+    letter-spacing: 0.5px;
+}
+
+.tab-btn:hover { color: rgba(255,248,231,0.75); }
+
+.tab-btn.active {
+    color: #D4A259;
+    border-bottom-color: #D4A259;
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ====== STATS CARDS ====== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #2d2521 0%, #3a2e26 100%);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255,248,231,0.06);
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(212,162,89,0.2);
+}
+
+.stat-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #D4A259;
+    margin-bottom: 0.35rem;
+}
+
+.stat-label {
+    font-family: 'Roboto', sans-serif;
+    color: rgba(255,248,231,0.5);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ====== PRODUCT GRID ====== */
 .product-grid {
     display: grid;
-    /* Define exatamente 5 colunas de 1fr (ou, se quiser largura fixa, troque 1fr por 220px, por exemplo) */
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1.5rem; /* Espaçamento entre cards */
-    justify-items: center; /* Centraliza cada card dentro da célula */
-    margin-top: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1rem;
 }
 
 .product-card {
-    background: #FFFFFF;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    width: 220px;
+    background: linear-gradient(135deg, #2d2521 0%, #352c25 100%);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,248,231,0.06);
+    transition: all 0.25s;
+}
+
+.product-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(212,162,89,0.25);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.product-card .card-image {
+    height: 160px;
+    background: #241e19;
+    display: flex; align-items: center; justify-content: center;
     overflow: hidden;
 }
 
-.product-card img {
-    max-height: 140px;
+.product-card .card-image img {
+    max-height: 145px;
+    max-width: 90%;
     object-fit: contain;
+    transition: transform 0.3s;
 }
 
-.product-card h3 {
-    font-family: 'JetBrains Mono', monospace;
-    color: #2D2521;
-    font-size: 1.05rem;
-    margin-bottom: 0.5rem;
+.product-card:hover .card-image img {
+    transform: scale(1.05);
 }
 
-.product-card p {
+.product-card .card-body {
+    padding: 1rem 1.15rem 1.15rem;
+}
+
+.product-card .card-body h3 {
     font-family: 'Roboto', sans-serif;
-    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #FFF8E7;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.product-card button {
-    background: #C0392B;
-    color: #FFF8E7;
-    border-radius: 4px;
+.product-card .card-category {
+    font-size: 0.75rem;
+    color: rgba(212,162,89,0.7);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.produto-preco {
+    font-family: 'JetBrains Mono', monospace;
+    color: #D4A259;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.produto-stock {
+    font-size: 0.8rem;
+    color: rgba(255,248,231,0.45);
+    margin-bottom: 12px;
+}
+
+.esgotado { color: #e74c3c !important; font-weight: 500; }
+
+.card-actions {
+    display: flex; gap: 8px;
+}
+
+.btn-editar {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    background: rgba(212,162,89,0.15);
+    color: #D4A259;
+    border: 1px solid rgba(212,162,89,0.25);
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.btn-editar:hover {
+    background: rgba(212,162,89,0.25);
+    border-color: rgba(212,162,89,0.45);
+}
+
+.btn-remover {
+    padding: 0.5rem 0.75rem;
+    background: rgba(231,76,60,0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231,76,60,0.2);
+    border-radius: 6px;
+    font-size: 0.8rem;
     font-family: 'Roboto', sans-serif;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s;
 }
 
-.product-card button:hover {
-    background: #A93226;
+.btn-remover:hover {
+    background: rgba(231,76,60,0.2);
+    border-color: rgba(231,76,60,0.4);
+}
+
+.no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: rgba(255,248,231,0.4);
+    padding: 3rem;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* ====== DESTAQUE CARDS ====== */
+.destaque-row {
+    display: flex; gap: 1.25rem; flex-wrap: wrap;
+    margin-top: 1.5rem; margin-bottom: 1.5rem;
+}
+
+.destaque-card {
+    flex: 1; min-width: 260px;
+    background: linear-gradient(135deg, #2d2521 0%, #3a2e26 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255,248,231,0.06);
+}
+
+.destaque-card h2 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 0.8rem;
+    color: rgba(255,248,231,0.45);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.75rem;
+}
+
+.destaque-nome {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #FFF8E7;
+    margin-bottom: 4px;
+}
+
+.destaque-quantidade {
+    font-size: 0.85rem;
+    color: rgba(255,248,231,0.5);
+}
+
+.destaque-card.menos { border-left: 3px solid #e74c3c; }
+.destaque-card.mais { border-left: 3px solid #27ae60; }
+
+/* ====== CLIENTES TABLE ====== */
+.clientes-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.clientes-table thead tr {
+    background: rgba(212,162,89,0.08);
+}
+
+.clientes-table th {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,248,231,0.5);
+    padding: 0.85rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,248,231,0.06);
+}
+
+.clientes-table th:last-child { text-align: right; }
+
+.clientes-table td {
+    padding: 0.85rem 1rem;
+    font-size: 0.9rem;
+    color: rgba(255,248,231,0.8);
+    border-bottom: 1px solid rgba(255,248,231,0.04);
+}
+
+.clientes-table td:last-child {
+    text-align: right;
+    color: #D4A259;
+    font-weight: 500;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.clientes-table tbody tr:hover {
+    background: rgba(212,162,89,0.04);
+}
+
+/* ====== CHARTS ====== */
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.chart-section {
+    background: linear-gradient(135deg, #2d2521 0%, #3a2e26 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255,248,231,0.06);
+}
+
+.chart-section h3 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 0.8rem;
+    color: rgba(255,248,231,0.45);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 1rem;
+}
+
+.chart-wrapper {
+    height: 220px;
+    position: relative;
+}
+
+/* ====== SECTION TITLE ====== */
+.section-title {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 0.8rem;
+    color: rgba(255,248,231,0.45);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 1024px) {
+    .sidebar { width: 200px; }
+    .main-content { margin-left: 200px; padding: 1.5rem; }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%; height: auto;
+        position: relative;
+        flex-direction: row;
+        align-items: center;
+    }
+    .sidebar-nav { display: flex; overflow-x: auto; padding: 0; }
+    .sidebar-nav a { padding: 0.75rem 1rem; border-left: none; border-bottom: 3px solid transparent; }
+    .sidebar-nav a.active { border-bottom-color: #D4A259; border-left-color: transparent; }
+    .sidebar-footer { display: none; }
+    .main-content { margin-left: 0; padding: 1rem; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    .charts-container { grid-template-columns: 1fr; }
 }

@@ -1,290 +1,118 @@
-/* add_mobilia.css */
-
-/* ================================
-   Importação de fontes do Google
-   ================================
-   - Montserrat: usada nos botões
-   - Playfair Display: usada no logo "Mobílubi"
-   - Roboto: usada no texto geral
-   - JetBrains Mono: usada nos títulos
-*/
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Playfair+Display:wght@700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+/* add_mobilia.css — Dark theme */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
-/* ================================
-   Reset básico e definições globais
-   ================================
-   Remove margens/paddings padrão e define box-sizing para border-box
-*/
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow-x: hidden; background: #1a1410; }
+body { font-family: 'Roboto', sans-serif; color: #FFF8E7; }
 
-/* ================================================
-   Impede rolagem horizontal em toda a página
-   ================================================
-   Mantém apenas scroll vertical, conforme admin.css
-*/
-html, body {
-    width: 100%;
-    height: 100%;
-    overflow-x: hidden;
-    background-color: #FFFFFF; /* fundo branco */
-    font-family: 'Roboto', sans-serif;
-}
-
-/* ================================
-   HEADER SIMPLIFICADO (se necessário)
-   ================================
-   Caso queira um header igual ao admin, basta inserir
-   a marcação .mb-header em add_mobilia.html e usar este CSS.
-   Caso contrário, este bloco pode ser removido.
-*/
 .mb-header {
     width: 100%;
-    background-color: #4D3B2E; /* castanho escuro */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1000;
+    background: linear-gradient(90deg, #4D3B2E, #2d2521);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+    position: fixed; top: 0; left: 0; z-index: 1000;
 }
 .mb-header .mb-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    height: 60px;
-    padding: 0 1rem;
+    max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center;
+    height: 60px; padding: 0 1.5rem;
 }
 .mb-logo a {
     font-family: 'Playfair Display', serif;
-    font-size: 1.75rem;
-    color: #FFF8E7; /* bege claro */
-    text-decoration: none;
-    letter-spacing: 2px;
+    font-size: 1.75rem; color: #FFF8E7;
+    text-decoration: none; letter-spacing: 2px;
 }
 
-/* ================================
-   ESPAÇAMENTO PRINCIPAL PARA FORMULÁRIO
-   ================================
-   Igual ao .admin-page em admin.css, mas sem colunas extras
-*/
 .admin-page {
-    margin-top: 60px; /* compensa header fixo */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100vw;
-    min-height: calc(100vh - 60px);
-    background-color: #FFFFFF;
-    overflow-x: hidden; /* impede scroll horizontal */
-    overflow-y: auto;   /* mantém scroll vertical */
+    margin-top: 60px; min-height: calc(100vh - 60px);
+    display: flex; justify-content: center; align-items: center;
+    padding: 2rem 1.5rem; background: #1a1410;
 }
 
-/* ================================
-   CONTAINER DO FORMULÁRIO
-   ================================
-   Segue o alinhamento e cores de admin.css
-*/
-.form-container {
-    width: 100%;
-    max-width: 700px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 2rem 1rem;
-}
+.form-container { width: 100%; max-width: 700px; }
 
-/* ================================
-   CAIXA DO FORMULÁRIO (form-box)
-   ================================
-   Mesmas dimensões e espaçamentos do admin.css, adaptado
-*/
 .form-box {
-    width: 100%;
-    background-color: #FFFFFF;
-    border: 1px solid #E0DFDD; /* leve borda bege claro */
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    padding: 2rem;
-    color: #2D2521; /* texto castanho escuro */
+    background: linear-gradient(135deg, #2d2521 0%, #3a2e26 100%);
+    border: 1px solid rgba(255,248,231,0.06);
+    border-radius: 12px; padding: 2.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
 
-/* ================================
-   LOGO/BRAND "Mobílubi"
-   ================================
-   Mesmo estilo de admin.css
-*/
-.form-box .brand h2 {
+.brand h2 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.75rem;
-    color: #4D3B2E; /* castanho escuro */
-    margin-bottom: 1rem;
-    letter-spacing: 2px;
+    font-size: 1.75rem; color: #D4A259;
+    margin-bottom: 1rem; letter-spacing: 2px;
+    text-align: center;
 }
 
-/* ================================
-   TÍTULO DA PÁGINA
-   ================================
-   Usa JetBrains Mono, cor castanho escuro
-*/
 .form-box h1 {
     font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-    color: #2D2521;
-    font-size: 1.75rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    letter-spacing: 1px;
+    font-weight: 700; color: #FFF8E7;
+    font-size: 1.5rem; margin-bottom: 2rem;
+    text-align: center; letter-spacing: 1px;
 }
 
-/* ================================
-   MENSAGENS DE ERRO/SUCESSO
-   ================================
-   Segue padrão de cores do admin.css
-*/
-.error-message {
-    font-family: 'Roboto', sans-serif;
-    color: #C0392B; /* vermelho escuro para erro */
-    background: rgba(192, 57, 43, 0.1);
-    padding: 0.75rem 1rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.success-message {
-    font-family: 'Roboto', sans-serif;
-    color: #D4A259; /* laranja queimado */
-    background: rgba(212, 162, 89, 0.1);
-    padding: 0.75rem 1rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-/* ================================
-   GRUPO DE INPUTS
-   ================================
-   Labels e inputs seguindo a paleta de colors do admin.css
-*/
-.input-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1.25rem;
-}
-
+.input-group { margin-bottom: 1.25rem; }
 .input-group label {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-    color: #4D3B2E; /* castanho escuro */
+    display: block; font-family: 'Roboto', sans-serif;
+    font-weight: 500; color: rgba(255,248,231,0.7);
+    margin-bottom: 0.5rem; font-size: 0.9rem;
 }
-
 .input-group input[type="text"],
 .input-group input[type="number"],
-.input-group input[type="file"] {
-    font-family: 'Roboto', sans-serif;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #D0CFCF;
-    border-radius: 4px;
-    font-size: 1rem;
-    color: #2D2521; /* castanho escuro */
-    background-color: #FAF9F8; /* bege muito claro */
-    transition: border-color 0.2s, box-shadow 0.2s;
+.input-group input[type="file"],
+.input-group textarea,
+.input-group select {
+    width: 100%; font-family: 'Roboto', sans-serif;
+    padding: 0.75rem 1rem;
+    background: rgba(255,248,231,0.05);
+    border: 1px solid rgba(255,248,231,0.1);
+    border-radius: 8px; color: #FFF8E7;
+    font-size: 0.95rem; transition: all 0.2s;
+}
+.input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+    outline: none; border-color: #D4A259;
+    box-shadow: 0 0 0 3px rgba(212,162,89,0.15);
+}
+.input-group option {
+    background: #2d2521; color: #FFF8E7;
 }
 
-.input-group input:focus {
-    outline: none;
-    border-color: #D4A259; /* laranja queimado */
-    box-shadow: 0 0 0 3px rgba(212, 162, 89, 0.2);
-}
-
-/* Mensagem de erro abaixo do input (legenda) */
-.input-group p {
-    font-family: 'Roboto', sans-serif;
-    font-size: 0.875rem;
-    color: #C0392B; /* vermelho para erro */
-    margin-top: 0.25rem;
-}
-
-/* ================================
-   BOTOES DE AÇÃO
-   ================================
-*/
-
-/* Botão “Cancelar” (estilo secundário) */
-.btn-cancel {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
-    color: #4D3B2E; /* castanho escuro */
-    background-color: #EDEDED; /* cinza claro */
-    border: 1px solid #C0BFBF;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: background-color 0.2s, transform 0.1s;
-}
-
-.btn-cancel:hover {
-    background-color: #D5D4D3; /* cinza um pouco mais escuro */
-    transform: translateY(-1px);
-}
-
-/* Botão “Salvar Mobília” (estilo principal) */
 .btn-submit {
+    width: 100%; padding: 0.85rem;
+    background: #D4A259; color: #1a1410;
     font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
-    color: #FFFFFF; /* texto branco */
-    background-color: #D4A259; /* laranja queimado */
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    text-transform: uppercase;
-    transition: background-color 0.2s, transform 0.1s;
-    align-self: flex-end;
-    margin-top: 1rem;
-    text-decoration: none;
+    font-weight: 700; font-size: 0.9rem;
+    border: none; border-radius: 8px;
+    text-transform: uppercase; cursor: pointer;
+    transition: all 0.2s; letter-spacing: 0.5px;
+    margin-top: 1.5rem;
 }
-
 .btn-submit:hover {
-    background-color: #B5884A; /* tom mais escuro de laranja */
-    transform: translateY(-1px);
+    background: #e8b76a; transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(212,162,89,0.3);
 }
 
-/* ================================
-   RESPONSIVIDADE PARA TELAS MENORES
-   ================================
-*/
+.btn-cancel {
+    display: block; width: 100%; padding: 0.85rem;
+    background: rgba(255,248,231,0.06); color: rgba(255,248,231,0.7);
+    border: 1px solid rgba(255,248,231,0.1);
+    border-radius: 8px; font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 0.9rem;
+    text-transform: uppercase; cursor: pointer;
+    text-align: center; text-decoration: none;
+    transition: all 0.2s; margin-top: 0.75rem; letter-spacing: 0.5px;
+}
+.btn-cancel:hover {
+    background: rgba(255,248,231,0.1); transform: translateY(-1px);
+    color: #FFF8E7;
+}
+
+.alert { padding: 0.85rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center; }
+.alert-success { background: rgba(212,162,89,0.12); color: #D4A259; border: 1px solid rgba(212,162,89,0.25); }
+.alert-error { background: rgba(231,76,60,0.12); color: #e74c3c; border: 1px solid rgba(231,76,60,0.25); }
+
 @media (max-width: 768px) {
-    .form-container {
-        padding: 1.5rem 1rem;
-    }
-
-    .form-box {
-        padding: 1.5rem;
-    }
-
-    .input-group input[type="text"],
-    .input-group input[type="number"],
-    .input-group input[type="file"] {
-        font-size: 0.9rem;
-    }
-
-    .btn-submit,
-    .btn-cancel {
-        width: 100%;
-        text-align: center;
-        font-size: 0.875rem;
-        padding: 0.5rem 1rem;
-    }
+    .form-box { padding: 1.5rem; }
 }
