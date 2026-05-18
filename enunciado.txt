@@ -1,0 +1,107 @@
+
+EduMark
+Sistemas Distribuídos
+Introdução
+Descrição Geral
+Elementos a Entregar
+Objetivos Gerais
+Requisitos Técnicos Mínimos
+Referências
+Sistemas Distribuídos
+Enunciado do Trabalho Prático 2
+Descrição do Trabalho: Aplicação Web com Spring Framework.
+Organização dos Grupos de Estudantes: Trabalho a realizar por um grupo de, no máximo, 2 ou 3 estudantes.
+Entrega do Trabalho: Um estudante de cada grupo deve enviar todos os elementos de avaliação até à data limite estabelecida. Todos os elementos devem ser entregues através do ponto de submissão existente na página da Unidade Curricular no Moodle.
+Assume-se que cada projeto é implementado pelos membros de cada grupo, e que estes conhecem e compreendem o Código de Integridade da UBI, nomeadamente no que diz respeito ao plágio.
+
+🤖 A utilização de ferramentas de Inteligência Artificial deve ser encarada como um apoio complementar ao desenvolvimento do trabalho, e não como um substituto integral da autoria humana. A entrega de trabalhos realizados integralmente com recurso a inteligência artificial será considerada uma infração académica e sujeita a penalização.
+
+Introdução
+Os trabalhos de grupo consistem no desenvolvimento de um projeto de programação, acompanhado pela respetiva documentação técnica e por um relatório final.
+
+Este projeto corresponde a 35% da classificação final da unidade curricular (equivalente a 7 valores). A avaliação distribui-se pelos seguintes componentes:
+
+O código da aplicação Web avaliado até 4 valores.
+O relatório técnico, elaborado em 
+L
+a
+T
+e
+X
+LaTeX e entregue em formato PDF, avaliado até 2 valores.
+A apresentação do trabalho (máximo 10 minutos), seguida de defesa (máximo de 5 minutos), a ocorrer no final do semestre, poderá valer até 1 valor.
+⚠️ Na defesa dos trabalhos todos os elementos do grupo devem ter o trabalho a funcionar na sua máquina (instalação local).
+
+Descrição Geral
+Pretende-se o desenvolvimento de uma aplicação web para uma loja online, que consuma serviços Web RESTful implementados com a Framework Spring.
+
+A aplicação deverá incluir uma base de dados própria, criada com um sistema de gestão de bases de dados (SGBD) à escolha do grupo, para assegurar a persistência da informação.
+
+Cada grupo deverá escolher uma área de comércio de entre os seguintes temas:
+
+(T1) Loja de Eletrodomésticos;
+(T2) Loja de Mobílias (casa e jardim);
+(T3) Loja de Equipamento desportivo;
+(T4) Loja de Veículos motorizados;
+(T5) Loja de Produtos alimentares;
+(T6) Loja de Produtos de Saúde.
+Os produtos deverão estar organizados em categorias, permitindo a construção de um catálogo estruturado e navegável.
+
+Elementos a Entregar
+Os grupos devem submeter, num ficheiro comprimido, os seguintes elementos:
+
+Código-fonte da aplicação, incluindo:
+Backend (serviços RESTful desenvolvidos com Spring Framework);
+Frontend da aplicação web;
+Scripts de criação e inicialização da base de dados;
+Credenciais de acesso (se aplicável);
+Deverá ser incluído um ficheiro README contendo instruções claras para a instalação e execução da aplicação em ambiente local
+Relatório técnico, em formato PDF, contendo obrigatoriamente:
+Introdução;
+Modelo de dados;
+Descrição da arquitetura e das funcionalidades da aplicação;
+Descrição das opções adotadas para gestão de sessões e segurança;
+Demonstração;
+Conclusão.
+O relatório deverá descrever de forma detalhada o trabalho desenvolvido e incluir evidências que comprovem a implementação das funcionalidades do trabalho.
+
+Objetivos Gerais
+A aplicação deverá:
+
+Permitir a gestão de produtos (criação, edição, remoção e consulta);
+Disponibilizar um catálogo organizado por categorias;
+Suportar diferentes tipos de consultas sobre produtos e dados da loja;
+Gerir vendas e controlo de stocks;
+Permitir o registo e autenticação de clientes;
+Permitir a realização de compras online por clientes registados;
+Emitir uma fatura por cada venda efetuada (considerando pagamento no momento da entrega);
+Disponibilizar estatísticas de funcionamento da loja, tais como:
+Produtos mais e menos vendidos;
+Melhores clientes;
+Valor faturado por período (dia, semana, mês).
+Adicionalmente, deverão ser considerados:
+
+Mecanismos de gestão de sessões dos utilizadores;
+Aspetos de segurança, incluindo proteção na gestão de sessões e validação de dados.
+Requisitos Técnicos Mínimos
+A solução deverá cumprir os seguintes requisitos técnicos:
+
+Implementação de serviços RESTful com a framework Spring Framework;
+Integração entre frontend e backend através de APIs REST;
+Utilização de um SGBD à escolha para persistência de dados;
+Implementação de um modelo de dados adequado ao domínio escolhido;
+Suporte a operações CRUD sobre as entidades principais (produtos, clientes, vendas, etc.);
+Implementação de mecanismos de autenticação e gestão de sessões;
+Aplicação de boas práticas de segurança (ex.: validação de inputs, controlo de acesso).
+A falta de cumprimento destes requisitos técnicos mínimos resulta numa penalização na nota final do projeto.
+
+Referências
+Todos os conteúdos das aulas teóricas da unidade curricular, disponíveis em https://moodle.ubi.pt/.
+Spring Framework. VMware, Inc. Retrieved from https://spring.io/projects/spring-framework
+Magee, J., & Kramer, J. (1999). Concurrency: State models and Java programs. John Wiley & Sons; Gosling, J., Joy, B., & Steele, G. (n.d.).
+The Java language specification. Addison-Wesley. Retrieved from http://java.sun.com/docs/books/jls/index.html;
+Berg, D. J., & Fritzinger, J. S. (1999). Advanced techniques for Java developers. John Wiley & Sons;
+Updated on 15 May 2026 at 09:35
+ 
+
+EduMark © 2026 | 0.9 beta
