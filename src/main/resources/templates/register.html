@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Registo Loja de Mobiliário</title>
+    <link rel="stylesheet" th:href="@{/css/register.css}" />
+</head>
+<body>
+<div class="register-page">
+    <!-- COLUNA DO FORMULÁRIO -->
+    <div class="form-container">
+        <div class="form-box">
+            <div class="brand">
+                <h2>Mobílubi</h2>
+            </div>
+            <h1>REGISTO</h1>
+            <div th:if="${successMessage}" class="alert alert-success">
+                <p th:text="${successMessage}"></p>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger">
+                <p th:text="${errorMessage}"></p>
+            </div>
+            <form th:action="@{/register}" th:object="${clienteForm}" method="post">
+                <div class="input-group">
+                    <label>
+                        <input type="email" th:field="*{email}" placeholder="Email" required />
+                    </label>
+                </div>
+                <div class="input-group">
+                    <label>
+                        <input type="password" th:field="*{password}" placeholder="Password" required />
+                    </label>
+                </div>
+                <div class="input-group">
+                    <label>
+                        <input type="password" th:field="*{confirmPassword}" placeholder="Repetir Password" required />
+                    </label>
+                </div>
+                <div class="options">
+                    <a th:href="@{/login}" class="forgot">Já tem Conta?</a>
+                </div>
+                <button type="submit" class="btn-submit">Registar</button>
+            </form>
+        </div>
+    </div>
+    <!-- COLUNA DA ILUSTRAÇÃO -->
+    <div class="illustration">
+        <img src="/images/furniture.png" alt="Furniture Illustration"/>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,351 @@
+/* admin.css */
+
+/* ================================
+   Importação de fontes do Google
+   ================================
+   - Montserrat: usada no botão "+ Adicionar Mobília"
+   - Playfair Display: usada no logo "Mobílubi"
+   - Roboto: usada no texto geral
+   - JetBrains Mono: usada no título "MOBÍLIAS EM STOCK"
+*/
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Playfair+Display:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+/* ================================
+   Reset básico e definições globais
+   ================================
+   Remove margens/paddings padrão e define box-sizing para border-box
+*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ================================================
+   Impede rolagem horizontal em toda a página
+   ================================================ */
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden; /* bloqueia scroll lateral */
+}
+
+/* ================================
+   HEADER MOBÍLIBI
+   ================================
+   Define o header fixo no topo, fundo castanho, e altura de 60px
+*/
+.mb-header {
+    width: 100%;
+    background-color: #4D3B2E;    /* castanho escuro */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: fixed;              /* fixa no topo */
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+/* Container interno do header, centralizado e com padding */
+.mb-header .mb-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;          /* alinha logo, menu, estatísticas e logout no mesmo eixo vertical */
+    height: 60px;                 /* altura do header */
+    padding: 0 1rem;
+}
+
+/* ================================
+   LOGO "Mobílubi"
+   ================================
+*/
+.mb-logo a {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    color: #FFF8E7;               /* bege claro */
+    text-decoration: none;
+    letter-spacing: 2px;
+}
+
+/* ================================
+   MENU PRINCIPAL
+   ================================
+   Lista horizontal no header, com item "Mobílias em Stock"
+*/
+.mb-nav {
+    margin-left: 2rem;
+    flex: 1; /* expande para ocupar espaço e empurrar estatísticas e logout para a direita */
+}
+
+.mb-nav ul {
+    list-style: none;
+    display: flex;
+    align-items: center;          /* garante alinhamento vertical de cada item */
+    gap: 2rem;
+}
+
+.mb-nav ul li a {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #FFF8E7;               /* bege claro */
+    text-decoration: none;
+    font-size: 1rem;
+    position: relative;
+    padding: 0.5rem 0;            /* espaço vertical para clique e alinhamento */
+    transition: color 0.2s;
+}
+
+/* ================================
+   ÍCONE DE ESTATÍSTICAS (classe mb-stat)
+   ================================
+   - Herdamos a cor bege claro no SVG
+   - Alinhado verticalmente no header
+   - Posicionado logo à esquerda do ícone de logout
+   - SEM efeitos hover/ativo
+*/
+.mb-stat {
+    display: flex;
+    align-items: center;          /* alinha verticalmente ao centro do header */
+    justify-content: center;
+    width: 28px;                  /* mesmo tamanho dos outros ícones */
+    height: 28px;
+    cursor: pointer;
+    text-decoration: none;        /* remove sublinhado caso seja <a> */
+    margin-right: 1rem;           /* espaço entre estatísticas e logout */
+    transition: transform 0.1s;
+}
+
+.mb-stat svg {
+    fill: #FFF8E7;                /* bege claro */
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+.mb-stat:hover {
+    transform: scale(1.1);
+}
+
+/* ================================
+   ÍCONE DE LOGOUT (mantido igual)
+   ================================
+*/
+.mb-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.1s;
+}
+
+.mb-logout svg {
+    fill: #FFF8E7;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+.mb-logout:hover {
+    transform: scale(1.1);
+}
+
+/* Ao clicar (ativo/focus) no ícone de logout, muda cor para laranja queimado */
+.mb-logout:active svg,
+.mb-logout:focus svg {
+    fill: #D4A259;
+}
+
+/* ================================
+   DESLOCAMENTO DO CONTEÚDO PRINCIPAL
+   ================================
+   Adiciona margem-top para compensar o header fixo
+*/
+.admin-page {
+    margin-top: 60px;
+    background-color: #FFFFFF;
+    display: flex;
+    width: 100vw;
+    height: calc(100vh - 60px);
+    overflow-x: hidden; /* bloqueia scroll horizontal no container principal */
+    overflow-y: auto;   /* mantém apenas scroll vertical */
+}
+
+/* ================================
+   COLUNA DA LISTA (form-container)
+   ================================
+*/
+.form-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background-color: #FFFFFF;
+    padding-top: 1rem;
+    overflow-x: hidden; /* garante que não apareça horizontal scroll aqui */
+}
+
+/* ================================
+   CAIXA INTERNA (form-box)
+   ================================
+*/
+.form-box {
+    width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: #2D2521;
+    position: relative;
+    padding-top: 2rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+/* ================================
+   CONTEÚDO APÓS MARCA (centralizado)
+   ================================
+*/
+.content-after-brand {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+/* Título principal "MOBÍLIAS EM STOCK" */
+.content-after-brand h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #2D2521;
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+    letter-spacing: 1px;
+}
+
+/* ================================
+   MENSAGEM DE SUCESSO (flash)
+   ================================
+*/
+.success-message {
+    font-family: 'Roboto', sans-serif;
+    color: #D4A259;
+    background: rgba(212, 162, 89, 0.1);
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    width: 100%;
+    text-align: center;
+}
+
+/* ================================
+   BOTÃO "+ ADICIONAR MOBÍLIA"
+   ================================
+   Posicionado no canto inferior direito e redondo
+*/
+.btn-submit {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: #D4A259;
+    color: #2D2521;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    border: none;
+    border-radius: 50%;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    overflow: hidden;
+    padding: 0;
+    z-index: 500; /* garante que fique acima de outros elementos */
+}
+
+.btn-submit:hover {
+    background: #B5884A;
+    transform: translateY(-1px);
+}
+
+/* ================================
+   RESPONSIVIDADE PARA TELAS MENORES
+   ================================
+*/
+@media (max-width: 768px) {
+    .form-box {
+        width: 90%;
+        padding-top: 1.5rem;
+    }
+
+    .content-after-brand {
+        margin-top: 0.25rem;
+    }
+
+    /* Ajusta tamanho do botão para mobile */
+    .btn-submit {
+        width: 50px;
+        height: 50px;
+        font-size: 1rem;
+        bottom: 15px;
+        right: 15px;
+    }
+}
+
+.product-grid {
+    display: grid;
+    /* Define exatamente 5 colunas de 1fr (ou, se quiser largura fixa, troque 1fr por 220px, por exemplo) */
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem; /* Espaçamento entre cards */
+    justify-items: center; /* Centraliza cada card dentro da célula */
+    margin-top: 2rem;
+}
+
+.product-card {
+    background: #FFFFFF;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: 220px;
+    overflow: hidden;
+}
+
+.product-card img {
+    max-height: 140px;
+    object-fit: contain;
+}
+
+.product-card h3 {
+    font-family: 'JetBrains Mono', monospace;
+    color: #2D2521;
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+}
+
+.product-card p {
+    font-family: 'Roboto', sans-serif;
+    margin-bottom: 0.5rem;
+}
+
+.product-card button {
+    background: #C0392B;
+    color: #FFF8E7;
+    border-radius: 4px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.product-card button:hover {
+    background: #A93226;
+}

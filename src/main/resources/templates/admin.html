@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Administração - Mobílubi</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<!-- ========================= HEADER MOBÍLIBI ========================= -->
+<header class="mb-header">
+    <div class="mb-container">
+        <div class="mb-logo">
+            <a th:href="@{/admin}">Mobílubi</a>
+        </div>
+        <nav class="mb-nav">
+            <ul>
+                <li><a>PAINEL DO ADMINISTRADOR</a></li>
+            </ul>
+        </nav>
+        <a th:href="@{/logout}" class="mb-logout" title="Logout">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#FFF8E7" viewBox="0 0 24 24" width="20px" height="20px">
+                <path d="M10 2H4C2.897 2 2 2.897 2 4v16c0 1.103 0.897 2 2 2h6v-2H4V4h6V2zm9.707 10.707l-3 3a.999.999 0 0 1-1.414-1.414L16.586 13H9a1 1 0 1 1 0-2h7.586l-1.293-1.293a.999.999 0 1 1 1.414-1.414l3 3a.997.997 0 0 1 .003 1.414z"/>
+            </svg>
+        </a>
+    </div>
+</header>
+
+<!-- ===================== CONTEÚDO PRINCIPAL ===================== -->
+<div class="admin-page">
+    <div class="form-container">
+        <div class="form-box">
+            <div class="content-after-brand">
+                <h1>ADMINISTRAÇÃO</h1>
+
+                <!-- Mensagem de sucesso -->
+                <div th:if="${successMessage}" class="success-message">
+                    <span th:text="${successMessage}"></span>
+                </div>
+
+                <!-- Abas de navegação -->
+                <div class="admin-tabs">
+                    <button class="tab-btn active" onclick="openTab(event, 'tab-stock')">Gestão de Stock</button>
+                    <button class="tab-btn" onclick="openTab(event, 'tab-stats')">Estatísticas de Vendas</button>
+                </div>
+
+                <!-- ABA DE GESTÃO DE STOCK -->
+                <div id="tab-stock" class="tab-content active">
+                    <!-- Botão para adicionar nova mobília -->
+                    <div class="add-button-container">
+                        <a th:href="@{/mobilia/nova}" class="btn-submit">+</a>
+                    </div>
+
+                    <!-- Grid de produtos -->
+                    <div class="product-grid" style="margin-top: 2rem;">
+                        <div class="product-card" th:each="mobili : ${mobilias}">
+                            <div style="height: 140px; background: #F7F1E1; text-align: center;">
+                                <img th:src="@{'/' + ${mobili.imagem}}" th:alt="${mobili.nome}"
+                                     style="max-height: 140px; object-fit: contain;"
+                                     onerror="this.src='/images/placeholder.jpg';" />
+                            </div>
+                            <div style="padding: 12px;">
+                                <h3 th:text="${mobili.nome}"></h3>
+                                <p th:text="'€' + ${#numbers.formatDecimal(mobili.preco, 1, 2)}" class="produto-preco"></p>
+                                <p class="produto-stock">
+                                    <span th:if="${mobili.quantidade > 0}" th:text="${mobili.quantidade} + ' em stock'">Em stock</span>
+                                    <span th:if="${mobili.quantidade == 0}" class="esgotado">Esgotado</span>
+                                </p>
+                                <div style="text-align: center;">
+                                    <form th:action="@{/mobilia/deletar/{id}(id=${mobili.id})}" method="post"
+                                          onsubmit="return confirm('Tem certeza que quer excluir este item?');">
+                                        <button type="submit" class="btn-remover">Remover</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(mobilias)}" class="no-results">
+                            <strong>Nenhuma mobília registada.</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ABA DE ESTATÍSTICAS -->
+                <div id="tab-stats" class="tab-content">
+                    <!-- Resumo estatístico -->
+                    <div class="stats-overview">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number" th:text="${totalVendas}">0</div>
+                                <div class="stat-label">Total de Vendas</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">€<span th:text="${#numbers.formatDecimal(receitaTotal, 1, 2)}">0.00</span></div>
+                                <div class="stat-label">Receita Total</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">€<span th:text="${#numbers.formatDecimal(ticketMedio, 1, 2)}">0.00</span></div>
+                                <div class="stat-label">Ticket Médio</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" th:text="${clientesUnicos}">0</div>
+                                <div class="stat-label">Clientes Únicos</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Produto mais vendido em destaque -->
+                    <div class="produto-destaque">
+                        <h2></h2>Produto Mais Vendido</h2>
+                        <div class="destaque-card">
+                            <div class="destaque-nome" th:text="${produtoMaisVendido}">Nenhum produto vendido</div>
+                            <div class="destaque-quantidade">
+                                <span th:text="${quantidadeMaisVendida}">0</span> unidades vendidas
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos -->
+                    <div class="charts-container">
+                        <div class="chart-section">
+                            <h3>Vendas por Mês</h3>
+                            <canvas id="vendasChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="chart-section">
+                            <h3>Top 5 Produtos Mais Vendidos</h3>
+                            <canvas id="produtosVendidosChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let vendasChart = null;
+let produtosVendidosChart = null;
+
+// Funções de navegação entre abas
+function openTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tab-content");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].classList.remove("active");
+    }
+    tablinks = document.getElementsByClassName("tab-btn");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].classList.remove("active");
+    }
+    document.getElementById(tabName).classList.add("active");
+    evt.currentTarget.classList.add("active");
+    
+    // Carregar estatísticas quando abrir aba
+    if (tabName === 'tab-stats') {
+        setTimeout(() => {
+            carregarEstatisticasAdmin();
+        }, 100);
+    }
+}
+
+// Carregar estatísticas do admin
+function carregarEstatisticasAdmin() {
+    if (vendasChart && produtosVendidosChart) return; // Já carregado
+    
+    fetch('/admin/estatisticas-json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar dados');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Dados de vendas recebidos:', data);
+            if (!vendasChart) {
+                criarGraficoVendas(data.vendasPorMes || []);
+            }
+            if (!produtosVendidosChart) {
+                criarGraficoProdutosVendidos(data.produtosMaisVendidos || []);
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar estatísticas:', error);
+            if (!vendasChart) {
+                criarGraficoVendas([]);
+            }
+            if (!produtosVendidosChart) {
+                criarGraficoProdutosVendidos([]);
+            }
+        });
+}
+
+function criarGraficoVendas(vendasPorMes) {
+    const ctx = document.getElementById('vendasChart');
+    if (!ctx) return;
+    
+    const ctxContext = ctx.getContext('2d');
+    
+    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
+                   'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    
+    // Inicializar array com zeros
+    const dadosVendas = new Array(12).fill(0);
+    
+    // Preencher com dados reais
+    if (vendasPorMes && Array.isArray(vendasPorMes)) {
+        vendasPorMes.forEach(item => {
+            if (item && item.length >= 3) {
+                const mes = parseInt(item[1]) - 1;
+                if (mes >= 0 && mes < 12) {
+                    dadosVendas[mes] = parseInt(item[2]) || 0;
+                }
+            }
+        });
+    }
+    
+    vendasChart = new Chart(ctxContext, {
+        type: 'bar',
+        data: {
+            labels: meses,
+            datasets: [{
+                label: 'Vendas',
+                data: dadosVendas,
+                backgroundColor: '#D4A259',
+                borderColor: '#B5884A',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function criarGraficoProdutosVendidos(produtosMaisVendidos) {
+    const ctx = document.getElementById('produtosVendidosChart');
+    if (!ctx) return;
+    
+    const ctxContext = ctx.getContext('2d');
+    
+    if (!produtosMaisVendidos || !Array.isArray(produtosMaisVendidos) || produtosMaisVendidos.length === 0) {
+        produtosVendidosChart = new Chart(ctxContext, {
+            type: 'doughnut',
+            data: {
+                labels: ['Nenhum produto vendido'],
+                datasets: [{
+                    data: [1],
+                    backgroundColor: ['#E0DFDD']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        return;
+    }
+    
+    // Top 5 produtos
+    const produtos = produtosMaisVendidos.slice(0, 5);
+    
+    const labels = produtos.map(item => item[0] || 'Produto');
+    const valores = produtos.map(item => parseInt(item[1]) || 0);
+    
+    const cores = [
+        '#D4A259',
+        '#B5884A',
+        '#96703B',
+        '#77582C',
+        '#58401D'
+    ];
+    
+    produtosVendidosChart = new Chart(ctxContext, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: valores,
+                backgroundColor: cores.slice(0, labels.length)
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Carregar automaticamente se a página carregar na aba de estatísticas
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        console.log('Página admin carregada');
+    }, 500);
+});
+</script>
+</body>
+</html>

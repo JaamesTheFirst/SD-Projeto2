@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Login Loja de Mobiliário</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}" />
+</head>
+<body>
+<div class="login-page">
+    <!-- COLUNA DO FORMULÁRIO -->
+    <div class="form-container">
+        <div class="form-box">
+            <div class="brand">
+                <h2>Mobílubi</h2>
+            </div>
+            <h1>LOGIN</h1>
+
+            <!-- Mensagens de erro/sucesso -->
+            <div th:if="${errorMessage}" class="alert alert-danger" style="color: red; margin-bottom: 10px;">
+                <span th:text="${errorMessage}"></span>
+            </div>
+            <div th:if="${successMessage}" class="alert alert-success" style="color: green; margin-bottom: 10px;">
+                <span th:text="${successMessage}"></span>
+            </div>
+
+            <!-- Formulário usando campos padrão do Spring Security (usandoClienteForm) -->
+            <form th:action="@{/login-process}" th:object="${clienteForm}" method="post">
+                <div class="input-group">
+                    <input type="email" th:field="*{email}" placeholder="Email" required />
+                </div>
+                <div class="input-group">
+                    <input type="password" th:field="*{password}" placeholder="Password" required />
+                </div>
+                <div class="options">
+                    <a th:href="@{/register}" class="forgot">Não tem Conta?</a>
+                    <!--<a href="#" class="forgot">Esqueceu-se da Password?</a>-->
+                </div>
+                <button type="submit" class="btn-submit">Entrar</button>
+            </form>
+        </div>
+    </div>
+    <!-- COLUNA DA ILUSTRAÇÃO -->
+    <div class="illustration">
+        <img src="/images/furniture.png" alt="Furniture Illustration"/>
+    </div>
+</div>
+</body>
+</html>

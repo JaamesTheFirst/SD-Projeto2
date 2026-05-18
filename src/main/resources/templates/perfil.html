@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perfil – Mobílubi</title>
+    <link rel="stylesheet" th:href="@{/css/perfil.css}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<!-- ================== HEADER DO CLIENTE ================== -->
+<header class="mb-header">
+    <div class="mb-container">
+        <div class="mb-logo">
+            <a th:href="@{/cliente}">Mobílubi</a>
+        </div>
+        <nav class="mb-nav">
+        </nav>
+        <a th:href="@{/cliente/carrinho}" class="mb-stat" title="Carrinho">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path d="M12 2C10.34 2 9 3.34 9 5V6H5C3.9 6 3 6.9 3 8V20C3 21.1 3.9 22 5 22H19C20.1 22 21 21.1 21 20V8C21 6.9 20.1 6 19 6H15V5C15 3.34 13.66 2 12 2zM11 6V5C11 4.45 11.45 4 12 4C12.55 4 13 4.45 13 5V6H11zM19 8V20H5V8H19Z"/>
+            </svg>
+        </a>
+        <a th:href="@{/perfil}" class="mb-stat mb-stat-active" title="Perfil">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#D4A259" viewBox="0 0 24 24" width="20px" height="20px">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+            </svg>
+        </a>
+        <a th:href="@{/logout}" class="mb-logout" title="Logout">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#FFF8E7" viewBox="0 0 24 24" width="20px" height="20px">
+                <path d="M10 2H4C2.897 2 2 2.897 2 4v16c0 1.103 0.897 2 2 2h6v-2H4V4h6V2zm9.707 10.707l-3 3a.999.999 0 0 1-1.414-1.414L16.586 13H9a1 1 0 1 1 0-2h7.586l-1.293-1.293a.999.999 0 1 1 1.414-1.414l3 3a.997.997 0 0 1 .003 1.414z"/>
+            </svg>
+        </a>
+    </div>
+</header>
+
+<div class="perfil-page">
+    <div class="container">
+        <h1>MEU PERFIL</h1>
+        
+        <div class="perfil-tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'tab-info')">Informações</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-stats')">Estatísticas</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-history')">Histórico</button>
+        </div>
+        
+        <div class="perfil-content">
+            <!-- ABA DE INFORMAÇÕES -->
+            <div id="tab-info" class="tab-content active">
+                <div class="perfil-section">
+                    <h2>Informações da Conta</h2>
+                    <div class="info-item">
+                        <strong>Email:</strong> <span th:text="${clienteEmail}"></span>
+                    </div>
+                </div>
+
+                <div class="perfil-section">
+                    <h2>Resumo Estatístico</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" th:text="${numeroCompras}">0</div>
+                            <div class="stat-label">Compras Realizadas</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">€<span th:text="${#numbers.formatDecimal(totalGasto, 1, 2)}">0.00</span></div>
+                            <div class="stat-label">Total Gasto</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">€<span th:text="${#numbers.formatDecimal(mediaGasto, 1, 2)}">0.00</span></div>
+                            <div class="stat-label">Gasto Médio</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ABA DE ESTATÍSTICAS -->
+            <div id="tab-stats" class="tab-content">
+                <div class="perfil-section">
+                    <h2>Gastos por Mês (Ano Atual)</h2>
+                    <div class="chart-container">
+                        <canvas id="gastosChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+                
+                <div class="perfil-section">
+                    <h2>Produtos Mais Comprados</h2>
+                    <div class="chart-container">
+                        <canvas id="produtosChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ABA DE HISTÓRICO -->
+            <div id="tab-history" class="tab-content">
+                <div class="perfil-section">
+                    <h2>Histórico de Compras</h2>
+                    
+                    <div th:if="${#lists.isEmpty(faturas)}" class="no-history">
+                        <p>Ainda não realizou nenhuma compra.</p>
+                        <a th:href="@{/cliente}" class="btn-comprar">Começar a Comprar</a>
+                    </div>
+                    
+                    <div th:if="${!#lists.isEmpty(faturas)}" class="faturas-list">
+                        <div class="fatura-card" th:each="fatura : ${faturas}">
+                            <div class="fatura-header">
+                                <div class="fatura-id">Fatura #<span th:text="${fatura.id}"></span></div>
+                                <div class="fatura-data" th:text="${#temporals.format(fatura.dataCompra, 'dd/MM/yyyy HH:mm')}"></div>
+                            </div>
+                            <div class="fatura-info">
+                                <div class="fatura-total">
+                                    Total: €<span th:text="${#numbers.formatDecimal(fatura.totalPago, 1, 2)}"></span>
+                                </div>
+                                <button class="btn-detalhes" th:onclick="'abrirDetalhes(' + ${fatura.id} + ')'">
+                                    Ver Detalhes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE DETALHES DA FATURA -->
+<div id="faturaModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Detalhes da Fatura</h2>
+            <span class="close" onclick="fecharModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="faturaDetalhes">
+                <div class="loading">Carregando...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let gastosChart = null;
+let produtosChart = null;
+
+// Funções de navegação entre abas
+function openTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tab-content");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].classList.remove("active");
+    }
+    tablinks = document.getElementsByClassName("tab-btn");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].classList.remove("active");
+    }
+    document.getElementById(tabName).classList.add("active");
+    evt.currentTarget.classList.add("active");
+    
+    // Carregar gráfico quando abrir aba de estatísticas
+    if (tabName === 'tab-stats') {
+        setTimeout(() => {
+            carregarEstatisticas();
+        }, 100);
+    }
+}
+
+// Carregar estatísticas e gráfico
+function carregarEstatisticas() {
+    if (gastosChart && produtosChart) return; // Já carregado
+    
+    fetch('/perfil/estatisticas-json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar dados');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Dados recebidos:', data);
+            if (!gastosChart) {
+                criarGraficoGastos(data.gastosPorMes || []);
+            }
+            if (!produtosChart) {
+                criarGraficoProdutos(data.produtosMaisComprados || []);
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar estatísticas:', error);
+            // Criar gráficos vazios em caso de erro
+            if (!gastosChart) {
+                criarGraficoGastos([]);
+            }
+            if (!produtosChart) {
+                criarGraficoProdutos([]);
+            }
+        });
+}
+
+function criarGraficoGastos(gastosPorMes) {
+    const ctx = document.getElementById('gastosChart');
+    if (!ctx) return;
+    
+    const ctxContext = ctx.getContext('2d');
+    
+    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
+                   'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    
+    // Inicializar array com zeros para todos os meses
+    const dadosGastos = new Array(12).fill(0);
+    
+    // Preencher com dados reais (assumindo que vêm no formato [ano, mês, total])
+    if (gastosPorMes && Array.isArray(gastosPorMes)) {
+        gastosPorMes.forEach(item => {
+            if (item && item.length >= 3) {
+                const mes = parseInt(item[1]) - 1; // Converter para índice (0-11)
+                if (mes >= 0 && mes < 12) {
+                    dadosGastos[mes] = parseFloat(item[2]) || 0;
+                }
+            }
+        });
+    }
+    
+    gastosChart = new Chart(ctxContext, {
+        type: 'line',
+        data: {
+            labels: meses,
+            datasets: [{
+                label: 'Gastos (€)',
+                data: dadosGastos,
+                borderColor: '#D4A259',
+                backgroundColor: 'rgba(212, 162, 89, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '€' + value.toFixed(2);
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function criarGraficoProdutos(produtosMaisComprados) {
+    const ctx = document.getElementById('produtosChart');
+    if (!ctx) return;
+    
+    const ctxContext = ctx.getContext('2d');
+    
+    // Verificar se há dados
+    if (!produtosMaisComprados || !Array.isArray(produtosMaisComprados) || produtosMaisComprados.length === 0) {
+        // Gráfico vazio
+        produtosChart = new Chart(ctxContext, {
+            type: 'doughnut',
+            data: {
+                labels: ['Nenhum produto comprado'],
+                datasets: [{
+                    data: [1],
+                    backgroundColor: ['#E0DFDD']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        return;
+    }
+    
+    // Pegar os top 5 produtos
+    const produtos = produtosMaisComprados.slice(0, 5);
+    
+    const labels = produtos.map(item => item[0] || 'Produto');
+    const valores = produtos.map(item => parseInt(item[1]) || 0);
+    
+    const cores = [
+        '#D4A259',
+        '#B5884A',
+        '#96703B',
+        '#77582C',
+        '#58401D'
+    ];
+    
+    produtosChart = new Chart(ctxContext, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: valores,
+                backgroundColor: cores.slice(0, labels.length)
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Funções do modal - CORRIGIDO
+function abrirDetalhes(faturaId) {
+    const modal = document.getElementById('faturaModal');
+    const detalhes = document.getElementById('faturaDetalhes');
+    
+    // Mostrar loading
+    detalhes.innerHTML = '<div class="loading">Carregando detalhes...</div>';
+    modal.style.display = 'block';
+    
+    fetch('/api/fatura/' + faturaId, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error('Fatura não encontrada');
+            } else if (response.status === 403) {
+                throw new Error('Acesso negado');
+            } else {
+                throw new Error('Erro no servidor');
+            }
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Dados da fatura:', data);
+        mostrarDetalhes(data);
+    })
+    .catch(error => {
+        console.error('Erro ao carregar detalhes:', error);
+        detalhes.innerHTML = '<div class="erro">Erro ao carregar detalhes da fatura: ' + error.message + '</div>';
+    });
+}
+
+function mostrarDetalhes(fatura) {
+    const modalTitle = document.getElementById('modalTitle');
+    const faturaDetalhes = document.getElementById('faturaDetalhes');
+    
+    modalTitle.textContent = `Fatura #${fatura.id}`;
+    
+    let itensHtml = '';
+    if (fatura.itens && fatura.itens.length > 0) {
+        fatura.itens.forEach(item => {
+            const subtotal = item.precoUnitario * item.quantidade;
+            itensHtml += `
+                <div class="item-detalhe">
+                    <div class="item-nome">${item.nomeMobilia}</div>
+                    <div class="item-info">
+                        <span>Qtd: ${item.quantidade}</span>
+                        <span>€${item.precoUnitario.toFixed(2)}</span>
+                        <span class="item-subtotal">€${subtotal.toFixed(2)}</span>
+                    </div>
+                </div>
+            `;
+        });
+    } else {
+        itensHtml = '<div class="no-items">Não há itens detalhados para esta fatura.</div>';
+    }
+    
+    faturaDetalhes.innerHTML = `
+        <div class="fatura-info-modal">
+            <p><strong>Data:</strong> ${new Date(fatura.dataCompra).toLocaleString('pt-PT')}</p>
+            <p><strong>Total:</strong> €${fatura.totalPago.toFixed(2)}</p>
+        </div>
+        <div class="itens-lista">
+            <h3>Itens da Compra</h3>
+            ${itensHtml}
+        </div>
+    `;
+}
+
+function fecharModal() {
+    document.getElementById('faturaModal').style.display = 'none';
+}
+
+// Fechar modal ao clicar fora
+window.onclick = function(event) {
+    const modal = document.getElementById('faturaModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Carregar estatísticas automaticamente na primeira aba de estatísticas
+document.addEventListener('DOMContentLoaded', function() {
+    // Aguardar um pouco para garantir que a página está totalmente carregada
+    setTimeout(() => {
+        console.log('Página carregada, pronta para estatísticas');
+    }, 500);
+});
+</script>
+</body>
+</html>
