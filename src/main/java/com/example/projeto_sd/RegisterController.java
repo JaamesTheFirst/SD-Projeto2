@@ -49,11 +49,9 @@ public class RegisterController {
         }
 
         try {
-            //Cliente c = new Cliente();
-            Cliente c = form.toCliente(passwordEncoder);
+            Cliente c = new Cliente();
             c.setEmail(form.getEmail());
-            String encoded = passwordEncoder.encode(form.getPassword());
-            c.setPassword(encoded);
+            c.setPassword(passwordEncoder.encode(form.getPassword()));
             c.setRole("USER");
 
             logger.info("Tentando guardar o cliente no repositório: " + c.getEmail());

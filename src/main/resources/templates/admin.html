@@ -38,6 +38,9 @@
                 <div th:if="${successMessage}" class="success-message">
                     <span th:text="${successMessage}"></span>
                 </div>
+                <div th:if="${errorMessage}" class="error-message" style="background:#C0392B22; color:#C0392B; padding:12px; border-radius:8px; margin-bottom:16px;">
+                    <span th:text="${errorMessage}"></span>
+                </div>
 
                 <!-- Abas de navegação -->
                 <div class="admin-tabs">
@@ -62,12 +65,19 @@
                             </div>
                             <div style="padding: 12px;">
                                 <h3 th:text="${mobili.nome}"></h3>
+                                <p th:if="${mobili.categoria != null}" style="margin: 0 0 4px 0; font-size: 0.8rem; color: #888;">
+                                    <span th:text="${mobili.categoria.nome}"></span>
+                                </p>
                                 <p th:text="'€' + ${#numbers.formatDecimal(mobili.preco, 1, 2)}" class="produto-preco"></p>
                                 <p class="produto-stock">
                                     <span th:if="${mobili.quantidade > 0}" th:text="${mobili.quantidade} + ' em stock'">Em stock</span>
                                     <span th:if="${mobili.quantidade == 0}" class="esgotado">Esgotado</span>
                                 </p>
-                                <div style="text-align: center;">
+                                <div style="text-align: center; display: flex; gap: 8px; justify-content: center;">
+                                    <a th:href="@{/mobilia/editar/{id}(id=${mobili.id})}" class="btn-editar"
+                                       style="padding: 6px 16px; background: #D4A259; color: white; border-radius: 6px; text-decoration: none; font-size: 0.85rem;">
+                                        Editar
+                                    </a>
                                     <form th:action="@{/mobilia/deletar/{id}(id=${mobili.id})}" method="post"
                                           onsubmit="return confirm('Tem certeza que quer excluir este item?');">
                                         <button type="submit" class="btn-remover">Remover</button>
@@ -105,15 +115,47 @@
                         </div>
                     </div>
 
-                    <!-- Produto mais vendido em destaque -->
-                    <div class="produto-destaque">
-                        <h2></h2>Produto Mais Vendido</h2>
-                        <div class="destaque-card">
-                            <div class="destaque-nome" th:text="${produtoMaisVendido}">Nenhum produto vendido</div>
-                            <div class="destaque-quantidade">
-                                <span th:text="${quantidadeMaisVendida}">0</span> unidades vendidas
+                    <!-- Produtos em destaque -->
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+                        <div class="produto-destaque" style="flex: 1; min-width: 250px;">
+                            <h2>Produto Mais Vendido</h2>
+                            <div class="destaque-card">
+                                <div class="destaque-nome" th:text="${produtoMaisVendido}">Nenhum produto vendido</div>
+                                <div class="destaque-quantidade">
+                                    <span th:text="${quantidadeMaisVendida}">0</span> unidades vendidas
+                                </div>
                             </div>
                         </div>
+                        <div class="produto-destaque" style="flex: 1; min-width: 250px;">
+                            <h2>Produto Menos Vendido</h2>
+                            <div class="destaque-card" style="border-left-color: #C0392B;">
+                                <div class="destaque-nome" th:text="${produtoMenosVendido}">Nenhum produto vendido</div>
+                                <div class="destaque-quantidade">
+                                    <span th:text="${quantidadeMenosVendida}">0</span> unidades vendidas
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Melhores Clientes -->
+                    <div style="margin-top: 20px;" th:if="${melhoresClientes != null and !melhoresClientes.isEmpty()}">
+                        <h2>Melhores Clientes</h2>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <thead>
+                                <tr style="background: #3B2F1E; color: #FFF8E7;">
+                                    <th style="padding: 10px; text-align: left;">Email</th>
+                                    <th style="padding: 10px; text-align: center;">Nº Compras</th>
+                                    <th style="padding: 10px; text-align: right;">Total Gasto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="cliente : ${melhoresClientes}" style="border-bottom: 1px solid #E0DFDD;">
+                                    <td style="padding: 10px;" th:text="${cliente[0]}"></td>
+                                    <td style="padding: 10px; text-align: center;" th:text="${cliente[1]}"></td>
+                                    <td style="padding: 10px; text-align: right;">€<span th:text="${#numbers.formatDecimal(cliente[2], 1, 2)}"></span></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
                     <!-- Gráficos -->
@@ -127,6 +169,14 @@
                             <canvas id="produtosVendidosChart" width="400" height="200"></canvas>
                         </div>
                     </div>
+
+                    <!-- Gráfico de Receita por Mês -->
+                    <div class="charts-container" style="margin-top: 20px;">
+                        <div class="chart-section" style="width: 100%;">
+                            <h3>Valor Faturado por Mês (€)</h3>
+                            <canvas id="receitaChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -136,6 +186,7 @@
 <script>
 let vendasChart = null;
 let produtosVendidosChart = null;
+let receitaChart = null;
 
 // Funções de navegação entre abas
 function openTab(evt, tabName) {
@@ -150,7 +201,7 @@ function openTab(evt, tabName) {
     }
     document.getElementById(tabName).classList.add("active");
     evt.currentTarget.classList.add("active");
-    
+
     // Carregar estatísticas quando abrir aba
     if (tabName === 'tab-stats') {
         setTimeout(() => {
@@ -161,8 +212,8 @@ function openTab(evt, tabName) {
 
 // Carregar estatísticas do admin
 function carregarEstatisticasAdmin() {
-    if (vendasChart && produtosVendidosChart) return; // Já carregado
-    
+    if (vendasChart && produtosVendidosChart && receitaChart) return; // Já carregado
+
     fetch('/admin/estatisticas-json')
         .then(response => {
             if (!response.ok) {
@@ -178,31 +229,27 @@ function carregarEstatisticasAdmin() {
             if (!produtosVendidosChart) {
                 criarGraficoProdutosVendidos(data.produtosMaisVendidos || []);
             }
+            if (!receitaChart) {
+                criarGraficoReceita(data.receitaPorMes || []);
+            }
         })
         .catch(error => {
             console.error('Erro ao carregar estatísticas:', error);
-            if (!vendasChart) {
-                criarGraficoVendas([]);
-            }
-            if (!produtosVendidosChart) {
-                criarGraficoProdutosVendidos([]);
-            }
+            if (!vendasChart) criarGraficoVendas([]);
+            if (!produtosVendidosChart) criarGraficoProdutosVendidos([]);
+            if (!receitaChart) criarGraficoReceita([]);
         });
 }
 
 function criarGraficoVendas(vendasPorMes) {
     const ctx = document.getElementById('vendasChart');
     if (!ctx) return;
-    
+
     const ctxContext = ctx.getContext('2d');
-    
-    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
+    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
                    'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    
-    // Inicializar array com zeros
     const dadosVendas = new Array(12).fill(0);
-    
-    // Preencher com dados reais
+
     if (vendasPorMes && Array.isArray(vendasPorMes)) {
         vendasPorMes.forEach(item => {
             if (item && item.length >= 3) {
@@ -213,7 +260,7 @@ function criarGraficoVendas(vendasPorMes) {
             }
         });
     }
-    
+
     vendasChart = new Chart(ctxContext, {
         type: 'bar',
         data: {
@@ -230,18 +277,9 @@ function criarGraficoVendas(vendasPorMes) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
-                }
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
             },
-            plugins: {
-                legend: {
-                    display: false
-                }
-            }
+            plugins: { legend: { display: false } }
         }
     });
 }
@@ -249,72 +287,96 @@ function criarGraficoVendas(vendasPorMes) {
 function criarGraficoProdutosVendidos(produtosMaisVendidos) {
     const ctx = document.getElementById('produtosVendidosChart');
     if (!ctx) return;
-    
+
     const ctxContext = ctx.getContext('2d');
-    
+
     if (!produtosMaisVendidos || !Array.isArray(produtosMaisVendidos) || produtosMaisVendidos.length === 0) {
         produtosVendidosChart = new Chart(ctxContext, {
             type: 'doughnut',
             data: {
                 labels: ['Nenhum produto vendido'],
-                datasets: [{
-                    data: [1],
-                    backgroundColor: ['#E0DFDD']
-                }]
+                datasets: [{ data: [1], backgroundColor: ['#E0DFDD'] }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
+                plugins: { legend: { position: 'bottom' } }
             }
         });
         return;
     }
-    
-    // Top 5 produtos
+
     const produtos = produtosMaisVendidos.slice(0, 5);
-    
     const labels = produtos.map(item => item[0] || 'Produto');
     const valores = produtos.map(item => parseInt(item[1]) || 0);
-    
-    const cores = [
-        '#D4A259',
-        '#B5884A',
-        '#96703B',
-        '#77582C',
-        '#58401D'
-    ];
-    
+    const cores = ['#D4A259', '#B5884A', '#96703B', '#77582C', '#58401D'];
+
     produtosVendidosChart = new Chart(ctxContext, {
         type: 'doughnut',
         data: {
             labels: labels,
+            datasets: [{ data: valores, backgroundColor: cores.slice(0, labels.length) }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+}
+
+function criarGraficoReceita(receitaPorMes) {
+    const ctx = document.getElementById('receitaChart');
+    if (!ctx) return;
+
+    const ctxContext = ctx.getContext('2d');
+    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+                   'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const dadosReceita = new Array(12).fill(0);
+
+    if (receitaPorMes && Array.isArray(receitaPorMes)) {
+        receitaPorMes.forEach(item => {
+            if (item && item.length >= 3) {
+                const mes = parseInt(item[1]) - 1;
+                if (mes >= 0 && mes < 12) {
+                    dadosReceita[mes] = parseFloat(item[2]) || 0;
+                }
+            }
+        });
+    }
+
+    receitaChart = new Chart(ctxContext, {
+        type: 'line',
+        data: {
+            labels: meses,
             datasets: [{
-                data: valores,
-                backgroundColor: cores.slice(0, labels.length)
+                label: 'Receita (€)',
+                data: dadosReceita,
+                borderColor: '#27AE60',
+                backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) { return '€' + value.toFixed(2); }
+                    }
                 }
-            }
+            },
+            plugins: { legend: { display: false } }
         }
     });
 }
 
-// Carregar automaticamente se a página carregar na aba de estatísticas
 document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        console.log('Página admin carregada');
-    }, 500);
+    console.log('Página admin carregada');
 });
 </script>
 </body>

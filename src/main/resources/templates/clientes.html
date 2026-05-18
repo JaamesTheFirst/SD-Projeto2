@@ -48,6 +48,22 @@
                     <span th:text="${errorMessage}"></span>
                 </div>
 
+                <!-- Navegação por categorias -->
+                <div class="category-nav" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
+                    <a th:href="@{/cliente}" class="cat-link"
+                       th:classappend="${filtroCategoriaId == null} ? ' cat-active' : ''"
+                       style="padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 0.85rem; border: 1px solid #D4A259;">
+                        Todas
+                    </a>
+                    <a th:each="cat : ${categorias}"
+                       th:href="@{/cliente(categoriaId=${cat.id})}"
+                       th:text="${cat.nome}"
+                       class="cat-link"
+                       th:classappend="${filtroCategoriaId != null and filtroCategoriaId == cat.id} ? ' cat-active' : ''"
+                       style="padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 0.85rem; border: 1px solid #D4A259;">
+                    </a>
+                </div>
+
                 <!-- Formulário de pesquisa -->
                 <div class="search-container">
                     <form th:action="@{/cliente}" method="get" class="search-form">
@@ -55,6 +71,14 @@
                             <input type="text" name="nome" th:value="${filtroNome}" placeholder="Pesquisar por nome..." class="search-input" />
                             <input type="number" name="precoMin" th:value="${filtroPrecoMin}" placeholder="Preço mín." step="0.01" class="search-input-small" />
                             <input type="number" name="precoMax" th:value="${filtroPrecoMax}" placeholder="Preço máx." step="0.01" class="search-input-small" />
+                            <select name="categoriaId" class="search-input-small" style="padding: 8px;">
+                                <option value="">Categoria</option>
+                                <option th:each="cat : ${categorias}"
+                                        th:value="${cat.id}"
+                                        th:text="${cat.nome}"
+                                        th:selected="${filtroCategoriaId != null and filtroCategoriaId == cat.id}">
+                                </option>
+                            </select>
                             <label class="search-checkbox">
                                 <input type="checkbox" name="emStock" th:checked="${filtroEmStock}" value="true" />
                                 Apenas em stock
@@ -75,6 +99,12 @@
                         </div>
                         <div style="padding: 12px;">
                             <h3 th:text="${mobili.nome}"></h3>
+                            <p th:if="${mobili.categoria != null}" style="margin: 0 0 4px 0; font-size: 0.8rem; color: #888;">
+                                <span th:text="${mobili.categoria.nome}"></span>
+                            </p>
+                            <p th:if="${mobili.descricao != null and !mobili.descricao.isEmpty()}" style="margin: 0 0 8px 0; font-size: 0.85rem; color: #666;">
+                                <span th:text="${mobili.descricao}"></span>
+                            </p>
                             <p th:text="'€' + ${#numbers.formatDecimal(mobili.preco, 1, 2)}" class="produto-preco"></p>
                             <p style="margin: 0 0 10px 0; font-family: 'Roboto', sans-serif; font-size: 0.9rem; color: #555;">
                                 <span th:if="${mobili.quantidade > 0}" th:text="${mobili.quantidade} + ' em stock'">Em stock</span>
@@ -99,5 +129,18 @@
         </div>
     </div>
 </div>
+
+<style>
+    .cat-link {
+        color: #3B2F1E;
+        background: transparent;
+        transition: all 0.2s;
+    }
+    .cat-link:hover, .cat-active {
+        background: #D4A259 !important;
+        color: #FFF8E7 !important;
+        border-color: #D4A259 !important;
+    }
+</style>
 </body>
 </html>

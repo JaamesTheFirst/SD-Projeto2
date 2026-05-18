@@ -1,7 +1,5 @@
 package com.example.projeto_sd;
 
-import com.example.projeto_sd.Cliente;
-import com.example.projeto_sd.ClienteRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,30 +9,42 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class DataInitializer {
 
     @Bean
-    CommandLineRunner initAdmin(ClienteRepository clienteRepository,
-                                PasswordEncoder passwordEncoder) {
+    CommandLineRunner initData(ClienteRepository clienteRepository,
+                               CategoriaRepository categoriaRepository,
+                               PasswordEncoder passwordEncoder) {
         return args -> {
-            // Definimos o e-mail e a senha iniciais do Admin
+            // ---- Criar Admin ----
             String adminEmail = "admin@mobiliubi.pt";
             String adminRawPassword = "admin123";
 
-            // 1) Verifica se já existe um cliente com este email
-            boolean exists = clienteRepository.findByEmail(adminEmail).isPresent();
-
-            if (!exists) {
-                // 2) Se não existir, cria instância de Cliente
+            boolean adminExists = clienteRepository.findByEmail(adminEmail).isPresent();
+            if (!adminExists) {
                 Cliente admin = new Cliente();
                 admin.setEmail(adminEmail);
-                // Encripta a password usando o PasswordEncoder configurado no SecurityConfig
                 admin.setPassword(passwordEncoder.encode(adminRawPassword));
-                // Define o papel (role) como "ADMIN"
                 admin.setRole("ADMIN");
-
-                // 3) Persiste no repositório
                 clienteRepository.save(admin);
-                System.out.println("Usuário admin criado: " + adminEmail + " / " + adminRawPassword);
+                System.out.println("Utilizador admin criado: " + adminEmail + " / " + adminRawPassword);
             } else {
-                System.out.println("Usuário admin já existe. Nenhuma ação tomada.");
+                System.out.println("Utilizador admin já existe.");
+            }
+
+            // ---- Criar Categorias ----
+            String[][] categorias = {
+                {"Sala de Estar", "Sofás, mesas de centro, estantes e móveis para a sala"},
+                {"Quarto", "Camas, cómodas, mesas de cabeceira e roupeiros"},
+                {"Cozinha", "Mesas de cozinha, cadeiras, armários e bancadas"},
+                {"Casa de Banho", "Móveis de casa de banho, espelhos e acessórios"},
+                {"Escritório", "Secretárias, cadeiras de escritório e estantes"},
+                {"Jardim", "Mesas de jardim, cadeiras de exterior, espreguiçadeiras e pérgulas"},
+                {"Decoração", "Candeeiros, quadros, tapetes e objetos decorativos"}
+            };
+
+            for (String[] cat : categorias) {
+                if (categoriaRepository.findByNome(cat[0]).isEmpty()) {
+                    categoriaRepository.save(new Categoria(cat[0], cat[1]));
+                    System.out.println("Categoria criada: " + cat[0]);
+                }
             }
         };
     }

@@ -1,19 +1,19 @@
 package com.example.projeto_sd;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class Mobilia {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
     private String nome;
+
+    @Column(length = 500)
+    private String descricao;
 
     @Column(nullable = false)
     private double preco;
@@ -23,6 +23,10 @@ public class Mobilia {
 
     @Column(name = "image_path")
     private String imagem;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "categoria_id")
+    private Categoria categoria;
 
     public Long getId() {
         return id;
@@ -38,6 +42,14 @@ public class Mobilia {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 
     public double getPreco() {
@@ -62,5 +74,13 @@ public class Mobilia {
 
     public void setImagem(String imagem) {
         this.imagem = imagem;
+    }
+
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
     }
 }
