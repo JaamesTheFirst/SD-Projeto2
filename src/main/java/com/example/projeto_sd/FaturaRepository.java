@@ -24,9 +24,9 @@ public interface FaturaRepository extends JpaRepository<Fatura, Long> {
            "ORDER BY ano DESC, mes DESC")
     List<Object[]> getGastosPorMes(String clienteEmail);
 
-    @Query("SELECT it.nomeMobilia, SUM(it.quantidade) as quantidade " +
+    @Query("SELECT it.nomeVeiculo, SUM(it.quantidade) as quantidade " +
            "FROM ItemFatura it JOIN it.fatura f WHERE f.clienteEmail = ?1 " +
-           "GROUP BY it.nomeMobilia " +
+           "GROUP BY it.nomeVeiculo " +
            "ORDER BY quantidade DESC")
     List<Object[]> getProdutosMaisComprados(String clienteEmail);
 
@@ -35,15 +35,15 @@ public interface FaturaRepository extends JpaRepository<Fatura, Long> {
 
     // ---- Estatísticas globais (Admin) ----
 
-    @Query("SELECT it.nomeMobilia, SUM(it.quantidade) as quantidadeVendida, SUM(it.precoUnitario * it.quantidade) as totalVendas " +
+    @Query("SELECT it.nomeVeiculo, SUM(it.quantidade) as quantidadeVendida, SUM(it.precoUnitario * it.quantidade) as totalVendas " +
            "FROM ItemFatura it " +
-           "GROUP BY it.nomeMobilia " +
+           "GROUP BY it.nomeVeiculo " +
            "ORDER BY quantidadeVendida DESC")
     List<Object[]> getProdutosMaisVendidos();
 
-    @Query("SELECT it.nomeMobilia, SUM(it.quantidade) as quantidadeVendida, SUM(it.precoUnitario * it.quantidade) as totalVendas " +
+    @Query("SELECT it.nomeVeiculo, SUM(it.quantidade) as quantidadeVendida, SUM(it.precoUnitario * it.quantidade) as totalVendas " +
            "FROM ItemFatura it " +
-           "GROUP BY it.nomeMobilia " +
+           "GROUP BY it.nomeVeiculo " +
            "ORDER BY quantidadeVendida ASC")
     List<Object[]> getProdutosMenosVendidos();
 

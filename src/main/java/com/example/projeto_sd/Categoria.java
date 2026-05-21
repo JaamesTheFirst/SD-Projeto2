@@ -18,7 +18,7 @@ public class Categoria {
     private String descricao;
 
     @OneToMany(mappedBy = "categoria", fetch = FetchType.LAZY)
-    private List<Mobilia> mobilias;
+    private List<Veiculo> veiculos;
 
     public Categoria() {}
 
@@ -37,6 +37,6 @@ public class Categoria {
     public String getDescricao() { return descricao; }
     public void setDescricao(String descricao) { this.descricao = descricao; }
 
-    public List<Mobilia> getMobilias() { return mobilias; }
-    public void setMobilias(List<Mobilia> mobilias) { this.mobilias = mobilias; }
+    public List<Veiculo> getVeiculos() { return veiculos; }
+    public void setVeiculos(List<Veiculo> veiculos) { this.veiculos = veiculos; }
 }

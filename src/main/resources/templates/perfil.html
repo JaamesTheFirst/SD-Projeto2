@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Perfil – Mobílubi</title>
+    <title>Perfil – AutoUBI</title>
     <link rel="stylesheet" th:href="@{/css/perfil.css}" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -12,7 +12,7 @@
 <header class="mb-header">
     <div class="mb-container">
         <div class="mb-logo">
-            <a th:href="@{/cliente}">Mobílubi</a>
+            <a th:href="@{/cliente}">AutoUBI</a>
         </div>
         <nav class="mb-nav">
         </nav>
@@ -373,7 +373,7 @@ function mostrarDetalhes(fatura) {
             const subtotal = item.precoUnitario * item.quantidade;
             itensHtml += `
                 <div class="item-detalhe">
-                    <div class="item-nome">${item.nomeMobilia}</div>
+                    <div class="item-nome">${item.nomeVeiculo}</div>
                     <div class="item-info">
                         <span>Qtd: ${item.quantidade}</span>
                         <span>€${item.precoUnitario.toFixed(2)}</span>

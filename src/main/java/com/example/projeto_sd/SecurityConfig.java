@@ -108,8 +108,8 @@ public class SecurityConfig {
                                 "/error"
                         ).permitAll()
 
-                        // 4.2.2) somente ROLE_ADMIN acessa /admin/** e /mobilia/**
-                        .requestMatchers("/admin/**", "/mobilia/**")
+                        // 4.2.2) somente ROLE_ADMIN acessa /admin/** e /veiculo/**
+                        .requestMatchers("/admin/**", "/veiculo/**")
                         .hasAuthority("ADMIN") // ou .hasRole("ADMIN") se seu banco grava “ROLE_ADMIN”
 
                         // 4.2.3) somente ROLE_USER acessa /clientes/** e /clientes

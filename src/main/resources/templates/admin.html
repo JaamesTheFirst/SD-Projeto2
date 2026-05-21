@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Administração - Mobílubi</title>
+    <title>Administração - AutoUBI</title>
     <link rel="stylesheet" th:href="@{/css/admin.css}" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<!-- ========================= HEADER MOBÍLIBI ========================= -->
+<!-- ========================= HEADER AUTOUBI ========================= -->
 <header class="mb-header">
     <div class="mb-container">
         <div class="mb-logo">
-            <a th:href="@{/admin}">Mobílubi</a>
+            <a th:href="@{/admin}">AutoUBI</a>
         </div>
         <nav class="mb-nav">
             <ul>
@@ -50,43 +50,47 @@
 
                 <!-- ABA DE GESTÃO DE STOCK -->
                 <div id="tab-stock" class="tab-content active">
-                    <!-- Botão para adicionar nova mobília -->
+                    <!-- Botão para adicionar novo veículo -->
                     <div class="add-button-container">
-                        <a th:href="@{/mobilia/nova}" class="btn-submit">+</a>
+                        <a th:href="@{/veiculo/novo}" class="btn-submit">+</a>
                     </div>
 
                     <!-- Grid de produtos -->
                     <div class="product-grid" style="margin-top: 2rem;">
-                        <div class="product-card" th:each="mobili : ${mobilias}">
+                        <div class="product-card" th:each="veiculo : ${veiculos}">
                             <div style="height: 140px; background: #F7F1E1; text-align: center;">
-                                <img th:src="@{'/' + ${mobili.imagem}}" th:alt="${mobili.nome}"
+                                <img th:src="@{'/' + ${veiculo.imagem}}" th:alt="${veiculo.nome}"
                                      style="max-height: 140px; object-fit: contain;"
                                      onerror="this.src='/images/placeholder.jpg';" />
                             </div>
                             <div style="padding: 12px;">
-                                <h3 th:text="${mobili.nome}"></h3>
-                                <p th:if="${mobili.categoria != null}" style="margin: 0 0 4px 0; font-size: 0.8rem; color: #888;">
-                                    <span th:text="${mobili.categoria.nome}"></span>
+                                <h3 th:text="${veiculo.nome}"></h3>
+                                <p th:if="${veiculo.marca != null}" style="margin: 0 0 2px 0; font-size: 0.8rem; color: #555;">
+                                    <span th:text="${veiculo.marca}"></span>
+                                    <span th:if="${veiculo.ano != null}" th:text="' · ' + ${veiculo.ano}"></span>
                                 </p>
-                                <p th:text="'€' + ${#numbers.formatDecimal(mobili.preco, 1, 2)}" class="produto-preco"></p>
+                                <p th:if="${veiculo.categoria != null}" style="margin: 0 0 4px 0; font-size: 0.8rem; color: #888;">
+                                    <span th:text="${veiculo.categoria.nome}"></span>
+                                </p>
+                                <p th:text="'€' + ${#numbers.formatDecimal(veiculo.preco, 1, 2)}" class="produto-preco"></p>
                                 <p class="produto-stock">
-                                    <span th:if="${mobili.quantidade > 0}" th:text="${mobili.quantidade} + ' em stock'">Em stock</span>
-                                    <span th:if="${mobili.quantidade == 0}" class="esgotado">Esgotado</span>
+                                    <span th:if="${veiculo.quantidade > 0}" th:text="${veiculo.quantidade} + ' em stock'">Em stock</span>
+                                    <span th:if="${veiculo.quantidade == 0}" class="esgotado">Esgotado</span>
                                 </p>
                                 <div style="text-align: center; display: flex; gap: 8px; justify-content: center;">
-                                    <a th:href="@{/mobilia/editar/{id}(id=${mobili.id})}" class="btn-editar"
+                                    <a th:href="@{/veiculo/editar/{id}(id=${veiculo.id})}" class="btn-editar"
                                        style="padding: 6px 16px; background: #D4A259; color: white; border-radius: 6px; text-decoration: none; font-size: 0.85rem;">
                                         Editar
                                     </a>
-                                    <form th:action="@{/mobilia/deletar/{id}(id=${mobili.id})}" method="post"
-                                          onsubmit="return confirm('Tem certeza que quer excluir este item?');">
+                                    <form th:action="@{/veiculo/deletar/{id}(id=${veiculo.id})}" method="post"
+                                          onsubmit="return confirm('Tem a certeza que quer remover este veículo?');">
                                         <button type="submit" class="btn-remover">Remover</button>
                                     </form>
                                 </div>
                             </div>
                         </div>
-                        <div th:if="${#lists.isEmpty(mobilias)}" class="no-results">
-                            <strong>Nenhuma mobília registada.</strong>
+                        <div th:if="${#lists.isEmpty(veiculos)}" class="no-results">
+                            <strong>Nenhum veículo registado.</strong>
                         </div>
                     </div>
                 </div>

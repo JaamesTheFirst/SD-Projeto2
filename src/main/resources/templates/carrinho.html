@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Carrinho – Mobílubi</title>
+    <title>Carrinho – AutoUBI</title>
     <link rel="stylesheet" th:href="@{/css/carrinho.css}" />
 </head>
 <body>
@@ -11,7 +11,7 @@
 <header class="mb-header">
     <div class="mb-container">
         <div class="mb-logo">
-            <a th:href="@{/cliente}">Mobílubi</a>
+            <a th:href="@{/cliente}">AutoUBI</a>
         </div>
         <nav class="mb-nav">
         </nav>
@@ -54,11 +54,11 @@
             <div class="carrinho-items">
                 <div class="carrinho-item" th:each="item : ${itensCarrinho}">
                     <div class="item-imagem">
-                        <img th:src="@{'/' + ${item.mobilia.imagem}}" th:alt="${item.mobilia.nome}" />
+                        <img th:src="@{'/' + ${item.veiculo.imagem}}" th:alt="${item.veiculo.nome}" />
                     </div>
                     <div class="item-info">
-                        <h3 th:text="${item.mobilia.nome}"></h3>
-                        <p class="item-preco">€<span th:text="${#numbers.formatDecimal(item.mobilia.preco, 1, 2)}"></span></p>
+                        <h3 th:text="${item.veiculo.nome}"></h3>
+                        <p class="item-preco">€<span th:text="${#numbers.formatDecimal(item.veiculo.preco, 1, 2)}"></span></p>
                         <p class="item-quantidade">Quantidade: <span th:text="${item.quantidade}"></span></p>
                         <p class="item-subtotal">Subtotal: €<span th:text="${#numbers.formatDecimal(item.subtotal, 1, 2)}"></span></p>
                     </div>

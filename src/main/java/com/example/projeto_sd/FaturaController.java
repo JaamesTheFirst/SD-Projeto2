@@ -47,7 +47,7 @@ public class FaturaController {
                 .map(item -> {
                     Map<String, Object> itemMap = new HashMap<>();
                     itemMap.put("id", item.getId());
-                    itemMap.put("nomeMobilia", item.getNomeMobilia());
+                    itemMap.put("nomeVeiculo", item.getNomeVeiculo());
                     itemMap.put("precoUnitario", item.getPrecoUnitario());
                     itemMap.put("quantidade", item.getQuantidade());
                     itemMap.put("subtotal", item.getSubtotal());

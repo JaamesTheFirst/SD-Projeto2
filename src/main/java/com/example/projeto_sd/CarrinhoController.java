@@ -19,7 +19,7 @@ public class CarrinhoController {
     private CarrinhoRepository carrinhoRepository;
     
     @Autowired
-    private MobiliaRepository mobiliaRepository;
+    private VeiculoRepository veiculoRepository;
     
     @Autowired
     private FaturaRepository faturaRepository;
@@ -40,28 +40,28 @@ public class CarrinhoController {
     }
 
     @PostMapping("/adicionar")
-    public String adicionarAoCarrinho(@RequestParam Long mobiliaId, 
-                                    Authentication auth, 
+    public String adicionarAoCarrinho(@RequestParam Long veiculoId,
+                                    Authentication auth,
                                     RedirectAttributes redirectAttributes) {
         String clienteEmail = auth.getName();
-        
-        Optional<Mobilia> mobiliaOpt = mobiliaRepository.findById(mobiliaId);
-        if (mobiliaOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Mobília não encontrada.");
+
+        Optional<Veiculo> veiculoOpt = veiculoRepository.findById(veiculoId);
+        if (veiculoOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Veículo não encontrado.");
             return "redirect:/cliente";
         }
-        
-        Mobilia mobilia = mobiliaOpt.get();
-        if (mobilia.getQuantidade() <= 0) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Mobília esgotada.");
+
+        Veiculo veiculo = veiculoOpt.get();
+        if (veiculo.getQuantidade() <= 0) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Veículo esgotado.");
             return "redirect:/cliente";
         }
-        
-        Optional<CarrinhoItem> itemExistente = carrinhoRepository.findByClienteEmailAndMobiliaId(clienteEmail, mobiliaId);
-        
+
+        Optional<CarrinhoItem> itemExistente = carrinhoRepository.findByClienteEmailAndVeiculoId(clienteEmail, veiculoId);
+
         if (itemExistente.isPresent()) {
             CarrinhoItem item = itemExistente.get();
-            if (item.getQuantidade() < mobilia.getQuantidade()) {
+            if (item.getQuantidade() < veiculo.getQuantidade()) {
                 item.setQuantidade(item.getQuantidade() + 1);
                 carrinhoRepository.save(item);
                 redirectAttributes.addFlashAttribute("successMessage", "Quantidade atualizada no carrinho!");
@@ -71,12 +71,12 @@ public class CarrinhoController {
         } else {
             CarrinhoItem novoItem = new CarrinhoItem();
             novoItem.setClienteEmail(clienteEmail);
-            novoItem.setMobilia(mobilia);
+            novoItem.setVeiculo(veiculo);
             novoItem.setQuantidade(1);
             carrinhoRepository.save(novoItem);
-            redirectAttributes.addFlashAttribute("successMessage", "Item adicionado ao carrinho!");
+            redirectAttributes.addFlashAttribute("successMessage", "Veículo adicionado ao carrinho!");
         }
-        
+
         return "redirect:/cliente";
     }
 
@@ -108,37 +108,37 @@ public class CarrinhoController {
             
             // Verificar se há stock suficiente
             for (CarrinhoItem item : itens) {
-                if (item.getMobilia().getQuantidade() < item.getQuantidade()) {
-                    redirectAttributes.addFlashAttribute("errorMessage", 
-                        "Stock insuficiente para " + item.getMobilia().getNome());
+                if (item.getVeiculo().getQuantidade() < item.getQuantidade()) {
+                    redirectAttributes.addFlashAttribute("errorMessage",
+                        "Stock insuficiente para " + item.getVeiculo().getNome());
                     return "redirect:/cliente/carrinho";
                 }
             }
-            
+
             // Criar fatura
             Fatura fatura = new Fatura();
             fatura.setClienteEmail(clienteEmail);
             fatura.setDataCompra(LocalDateTime.now());
-            
+
             double total = 0;
             for (CarrinhoItem item : itens) {
                 // Reduzir stock
-                Mobilia mobilia = item.getMobilia();
-                mobilia.setQuantidade(mobilia.getQuantidade() - item.getQuantidade());
-                mobiliaRepository.save(mobilia);
-                
+                Veiculo veiculo = item.getVeiculo();
+                veiculo.setQuantidade(veiculo.getQuantidade() - item.getQuantidade());
+                veiculoRepository.save(veiculo);
+
                 total += item.getSubtotal();
             }
-            
+
             fatura.setTotalPago(total);
             fatura = faturaRepository.save(fatura);
-            
+
             // Criar itens da fatura
             for (CarrinhoItem item : itens) {
                 ItemFatura itemFatura = new ItemFatura();
                 itemFatura.setFatura(fatura);
-                itemFatura.setNomeMobilia(item.getMobilia().getNome());
-                itemFatura.setPrecoUnitario(item.getMobilia().getPreco());
+                itemFatura.setNomeVeiculo(item.getVeiculo().getNome());
+                itemFatura.setPrecoUnitario(item.getVeiculo().getPreco());
                 itemFatura.setQuantidade(item.getQuantidade());
                 itemFaturaRepository.save(itemFatura);
             }

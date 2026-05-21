@@ -14,7 +14,7 @@ public class DataInitializer {
                                PasswordEncoder passwordEncoder) {
         return args -> {
             // ---- Criar Admin ----
-            String adminEmail = "admin@mobiliubi.pt";
+            String adminEmail = "admin@autoubi.pt";
             String adminRawPassword = "admin123";
 
             boolean adminExists = clienteRepository.findByEmail(adminEmail).isPresent();
@@ -31,13 +31,13 @@ public class DataInitializer {
 
             // ---- Criar Categorias ----
             String[][] categorias = {
-                {"Sala de Estar", "Sofás, mesas de centro, estantes e móveis para a sala"},
-                {"Quarto", "Camas, cómodas, mesas de cabeceira e roupeiros"},
-                {"Cozinha", "Mesas de cozinha, cadeiras, armários e bancadas"},
-                {"Casa de Banho", "Móveis de casa de banho, espelhos e acessórios"},
-                {"Escritório", "Secretárias, cadeiras de escritório e estantes"},
-                {"Jardim", "Mesas de jardim, cadeiras de exterior, espreguiçadeiras e pérgulas"},
-                {"Decoração", "Candeeiros, quadros, tapetes e objetos decorativos"}
+                {"Citadinos", "Veículos compactos e económicos ideais para uso urbano"},
+                {"Sedã / Berlina", "Automóveis de 4 portas com porta-bagagens separado"},
+                {"SUV / Todo-o-Terreno", "Veículos desportivos utilitários e para todo-o-terreno"},
+                {"Elétricos / Híbridos", "Veículos de propulsão elétrica ou híbrida"},
+                {"Desportivos", "Automóveis de alto desempenho e condução desportiva"},
+                {"Comerciais", "Carrinhas, furgões e veículos de trabalho"},
+                {"Motos", "Motociclos, scooters e ciclomotores"}
             };
 
             for (String[] cat : categorias) {

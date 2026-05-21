@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface CarrinhoRepository extends JpaRepository<CarrinhoItem, Long> {
     List<CarrinhoItem> findByClienteEmail(String clienteEmail);
-    Optional<CarrinhoItem> findByClienteEmailAndMobiliaId(String clienteEmail, Long mobiliaId);
+    Optional<CarrinhoItem> findByClienteEmailAndVeiculoId(String clienteEmail, Long veiculoId);
     
     @Modifying
     @Transactional

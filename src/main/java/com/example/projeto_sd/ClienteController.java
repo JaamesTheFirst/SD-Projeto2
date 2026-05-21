@@ -17,7 +17,7 @@ import java.util.Map;
 public class ClienteController {
 
     @Autowired
-    private MobiliaRepository mobiliaRepository;
+    private VeiculoRepository veiculoRepository;
 
     @Autowired
     private FaturaRepository faturaRepository;
@@ -34,15 +34,15 @@ public class ClienteController {
             @RequestParam(required = false) Boolean emStock,
             Model model) {
 
-        List<Mobilia> lista;
+        List<Veiculo> lista;
 
         if (nome != null || precoMin != null || precoMax != null || categoriaId != null || emStock != null) {
-            lista = mobiliaRepository.findByFiltros(nome, precoMin, precoMax, categoriaId, emStock);
+            lista = veiculoRepository.findByFiltros(nome, precoMin, precoMax, categoriaId, emStock);
         } else {
-            lista = mobiliaRepository.findAll();
+            lista = veiculoRepository.findAll();
         }
 
-        model.addAttribute("mobilias", lista);
+        model.addAttribute("veiculos", lista);
         model.addAttribute("categorias", categoriaRepository.findAll());
         model.addAttribute("filtroNome", nome);
         model.addAttribute("filtroPrecoMin", precoMin);

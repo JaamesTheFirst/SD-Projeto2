@@ -15,7 +15,7 @@ import java.util.Map;
 public class AdminController {
 
     @Autowired
-    private MobiliaRepository mobiliaRepository;
+    private VeiculoRepository veiculoRepository;
 
     @Autowired
     private FaturaRepository faturaRepository;
@@ -25,7 +25,7 @@ public class AdminController {
 
     @GetMapping("/admin")
     public String mostrarPaginaAdmin(Model model) {
-        List<Mobilia> mobilias = mobiliaRepository.findAll();
+        List<Veiculo> veiculos = veiculoRepository.findAll();
         List<Categoria> categorias = categoriaRepository.findAll();
 
         // Estatísticas gerais
@@ -59,7 +59,7 @@ public class AdminController {
         // Melhores clientes
         List<Object[]> melhoresClientes = faturaRepository.getMelhoresClientes();
 
-        model.addAttribute("mobilias", mobilias);
+        model.addAttribute("veiculos", veiculos);
         model.addAttribute("categorias", categorias);
         model.addAttribute("totalVendas", totalVendas != null ? totalVendas : 0);
         model.addAttribute("receitaTotal", receitaTotal != null ? receitaTotal : 0.0);
