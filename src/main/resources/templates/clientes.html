@@ -7,28 +7,27 @@
     <link rel="stylesheet" th:href="@{/css/clientes.css}" />
 </head>
 <body>
-<!-- ================== HEADER DO CLIENTE ================== -->
+<!-- ====== HEADER ====== -->
 <header class="mb-header">
     <div class="mb-container">
         <div class="mb-logo">
             <a th:href="@{/cliente}">AutoUBI</a>
         </div>
-        <nav class="mb-nav">
-        </nav>
+        <nav class="mb-nav"></nav>
         <a th:href="@{/cliente/carrinho}" class="mb-stat" title="Carrinho">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" width="20" height="20">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" width="18" height="18">
                 <path d="M12 2C10.34 2 9 3.34 9 5V6H5C3.9 6 3 6.9 3 8V20C3 21.1 3.9 22 5 22H19C20.1 22 21 21.1 21 20V8C21 6.9 20.1 6 19 6H15V5C15 3.34 13.66 2 12 2zM11 6V5C11 4.45 11.45 4 12 4C12.55 4 13 4.45 13 5V6H11zM19 8V20H5V8H19Z"/>
             </svg>
         </a>
         <a th:href="@{/perfil}" class="mb-stat" title="Perfil">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="#FFF8E7" viewBox="0 0 24 24" width="20px" height="20px">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#FFF8E7" viewBox="0 0 24 24" width="18" height="18">
                 <circle cx="12" cy="8" r="4" />
                 <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
             </svg>
         </a>
         <a th:href="@{/logout}" class="mb-logout" title="Logout">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="#FFF8E7" viewBox="0 0 24 24" width="20px" height="20px">
-                <path d="M10 2H4C2.897 2 2 2.897 2 4v16c0 1.103 0.897 2 2 2h6v-2H4V4h6V2zm9.707 10.707l-3 3a.999.999 0 0 1-1.414-1.414L16.586 13H9a1 1 0 1 1 0-2h7.586l-1.293-1.293a.999.999 0 1 1 1.414-1.414l3 3a.997.997 0 0 1 .003 1.414z"/>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#FFF8E7" viewBox="0 0 24 24" width="18" height="18">
+                <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
             </svg>
         </a>
     </div>
@@ -40,54 +39,51 @@
             <div class="content-after-brand">
                 <h1>CATÁLOGO DE VEÍCULOS</h1>
 
-                <!-- Mensagens de sucesso/erro -->
-                <div th:if="${successMessage}" class="alert alert-success">
-                    <span th:text="${successMessage}"></span>
-                </div>
-                <div th:if="${errorMessage}" class="alert alert-danger">
-                    <span th:text="${errorMessage}"></span>
-                </div>
+        <!-- Alerts -->
+        <div th:if="${successMessage}" class="alert alert-success">
+            <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <span th:text="${errorMessage}"></span>
+        </div>
 
-                <!-- Navegação por categorias -->
-                <div class="category-nav" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
-                    <a th:href="@{/cliente}" class="cat-link"
-                       th:classappend="${filtroCategoriaId == null} ? ' cat-active' : ''"
-                       style="padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 0.85rem; border: 1px solid #D4A259;">
-                        Todas
-                    </a>
-                    <a th:each="cat : ${categorias}"
-                       th:href="@{/cliente(categoriaId=${cat.id})}"
-                       th:text="${cat.nome}"
-                       class="cat-link"
-                       th:classappend="${filtroCategoriaId != null and filtroCategoriaId == cat.id} ? ' cat-active' : ''"
-                       style="padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 0.85rem; border: 1px solid #D4A259;">
-                    </a>
-                </div>
+        <!-- Category pills -->
+        <div class="category-nav">
+            <a th:href="@{/cliente}" class="cat-link"
+               th:classappend="${filtroCategoriaId == null} ? ' cat-active' : ''">
+                Todas
+            </a>
+            <a th:each="cat : ${categorias}"
+               th:href="@{/cliente(categoriaId=${cat.id})}"
+               th:text="${cat.nome}"
+               class="cat-link"
+               th:classappend="${filtroCategoriaId != null and filtroCategoriaId == cat.id} ? ' cat-active' : ''">
+            </a>
+        </div>
 
-                <!-- Formulário de pesquisa -->
-                <div class="search-container">
-                    <form th:action="@{/cliente}" method="get" class="search-form">
-                        <div class="search-row">
-                            <input type="text" name="nome" th:value="${filtroNome}" placeholder="Pesquisar por nome..." class="search-input" />
-                            <input type="number" name="precoMin" th:value="${filtroPrecoMin}" placeholder="Preço mín." step="0.01" class="search-input-small" />
-                            <input type="number" name="precoMax" th:value="${filtroPrecoMax}" placeholder="Preço máx." step="0.01" class="search-input-small" />
-                            <select name="categoriaId" class="search-input-small" style="padding: 8px;">
-                                <option value="">Categoria</option>
-                                <option th:each="cat : ${categorias}"
-                                        th:value="${cat.id}"
-                                        th:text="${cat.nome}"
-                                        th:selected="${filtroCategoriaId != null and filtroCategoriaId == cat.id}">
-                                </option>
-                            </select>
-                            <label class="search-checkbox">
-                                <input type="checkbox" name="emStock" th:checked="${filtroEmStock}" value="true" />
-                                Apenas em stock
-                            </label>
-                            <button type="submit" class="btn-search">Pesquisar</button>
-                            <a th:href="@{/cliente}" class="btn-clear">Limpar</a>
-                        </div>
-                    </form>
+        <!-- Search bar -->
+        <div class="search-container">
+            <form th:action="@{/cliente}" method="get" class="search-form">
+                <div class="search-row">
+                    <input type="text" name="nome" th:value="${filtroNome}" placeholder="Pesquisar por nome..." class="search-input" />
+                    <input type="number" name="precoMin" th:value="${filtroPrecoMin}" placeholder="Preço mín." step="0.01" class="search-input-small" />
+                    <input type="number" name="precoMax" th:value="${filtroPrecoMax}" placeholder="Preço máx." step="0.01" class="search-input-small" />
+                    <select name="categoriaId" class="search-input-small" style="padding:0.6rem 0.85rem; background:rgba(255,248,231,0.05); color:#FFF8E7; border:1px solid rgba(255,248,231,0.1); border-radius:8px;">
+                        <option value="">Categoria</option>
+                        <option th:each="cat : ${categorias}"
+                                th:value="${cat.id}" th:text="${cat.nome}"
+                                th:selected="${filtroCategoriaId != null and filtroCategoriaId == cat.id}">
+                        </option>
+                    </select>
+                    <label class="search-checkbox">
+                        <input type="checkbox" name="emStock" th:checked="${filtroEmStock}" value="true" />
+                        Em stock
+                    </label>
+                    <button type="submit" class="btn-search">Pesquisar</button>
+                    <a th:href="@{/cliente}" class="btn-clear">Limpar</a>
                 </div>
+            </form>
+        </div>
 
                 <!-- Grid de produtos -->
                 <div class="product-grid" style="margin-top: 2rem;">
@@ -133,18 +129,5 @@
         </div>
     </div>
 </div>
-
-<style>
-    .cat-link {
-        color: #3B2F1E;
-        background: transparent;
-        transition: all 0.2s;
-    }
-    .cat-link:hover, .cat-active {
-        background: #D4A259 !important;
-        color: #FFF8E7 !important;
-        border-color: #D4A259 !important;
-    }
-</style>
 </body>
 </html>

@@ -8,281 +8,250 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<!-- ========================= HEADER AUTOUBI ========================= -->
-<header class="mb-header">
-    <div class="mb-container">
-        <div class="mb-logo">
-            <a th:href="@{/admin}">AutoUBI</a>
-        </div>
-        <nav class="mb-nav">
-            <ul>
-                <li><a>PAINEL DO ADMINISTRADOR</a></li>
-            </ul>
-        </nav>
-        <a th:href="@{/logout}" class="mb-logout" title="Logout">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="#FFF8E7" viewBox="0 0 24 24" width="20px" height="20px">
-                <path d="M10 2H4C2.897 2 2 2.897 2 4v16c0 1.103 0.897 2 2 2h6v-2H4V4h6V2zm9.707 10.707l-3 3a.999.999 0 0 1-1.414-1.414L16.586 13H9a1 1 0 1 1 0-2h7.586l-1.293-1.293a.999.999 0 1 1 1.414-1.414l3 3a.997.997 0 0 1 .003 1.414z"/>
-            </svg>
+
+<!-- ====== SIDEBAR ====== -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <a th:href="@{/admin}">Mobílubi</a>
+        <span>Painel Admin</span>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="#" class="active" onclick="openTab(event, 'tab-stock')">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H4V4h16v16zM6 10h2v8H6zm4-4h2v12h-2zm4 6h2v6h-2z"/></svg>
+            Inventário
+        </a>
+        <a href="#" onclick="openTab(event, 'tab-stats')">
+            <svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
+            Estatísticas
+        </a>
+        <a href="#" onclick="openTab(event, 'tab-clientes')">
+            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            Clientes
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <a th:href="@{/logout}">
+            <svg viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            Terminar Sessão
         </a>
     </div>
-</header>
+</aside>
 
-<!-- ===================== CONTEÚDO PRINCIPAL ===================== -->
-<div class="admin-page">
-    <div class="form-container">
-        <div class="form-box">
-            <div class="content-after-brand">
-                <h1>ADMINISTRAÇÃO</h1>
+<!-- ====== MAIN ====== -->
+<main class="main-content">
+    <!-- Top bar -->
+    <div class="top-bar">
+        <h1 id="page-title">INVENTÁRIO</h1>
+        <div class="top-bar-actions" id="top-actions">
+            <a th:href="@{/mobilia/nova}" class="btn-add">
+                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                Novo Produto
+            </a>
+        </div>
+    </div>
 
-                <!-- Mensagem de sucesso -->
-                <div th:if="${successMessage}" class="success-message">
-                    <span th:text="${successMessage}"></span>
+    <!-- Flash messages -->
+    <div th:if="${successMessage}" class="flash-message flash-success">
+        <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" class="flash-message flash-error">
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- ====== TAB: INVENTÁRIO ====== -->
+    <div id="tab-stock" class="tab-content active">
+        <div class="product-grid">
+            <div class="product-card" th:each="mobili : ${mobilias}">
+                <div class="card-image">
+                    <img th:src="@{'/' + ${mobili.imagem}}" th:alt="${mobili.nome}"
+                         onerror="this.src='/images/placeholder.jpg';" />
                 </div>
-                <div th:if="${errorMessage}" class="error-message" style="background:#C0392B22; color:#C0392B; padding:12px; border-radius:8px; margin-bottom:16px;">
-                    <span th:text="${errorMessage}"></span>
-                </div>
-
-                <!-- Abas de navegação -->
-                <div class="admin-tabs">
-                    <button class="tab-btn active" onclick="openTab(event, 'tab-stock')">Gestão de Stock</button>
-                    <button class="tab-btn" onclick="openTab(event, 'tab-stats')">Estatísticas de Vendas</button>
-                </div>
-
-                <!-- ABA DE GESTÃO DE STOCK -->
-                <div id="tab-stock" class="tab-content active">
-                    <!-- Botão para adicionar novo veículo -->
-                    <div class="add-button-container">
-                        <a th:href="@{/veiculo/novo}" class="btn-submit">+</a>
-                    </div>
-
-                    <!-- Grid de produtos -->
-                    <div class="product-grid" style="margin-top: 2rem;">
-                        <div class="product-card" th:each="veiculo : ${veiculos}">
-                            <div style="height: 140px; background: #F7F1E1; text-align: center;">
-                                <img th:src="@{'/' + ${veiculo.imagem}}" th:alt="${veiculo.nome}"
-                                     style="max-height: 140px; object-fit: contain;"
-                                     onerror="this.src='/images/placeholder.jpg';" />
-                            </div>
-                            <div style="padding: 12px;">
-                                <h3 th:text="${veiculo.nome}"></h3>
-                                <p th:if="${veiculo.marca != null}" style="margin: 0 0 2px 0; font-size: 0.8rem; color: #555;">
-                                    <span th:text="${veiculo.marca}"></span>
-                                    <span th:if="${veiculo.ano != null}" th:text="' · ' + ${veiculo.ano}"></span>
-                                </p>
-                                <p th:if="${veiculo.categoria != null}" style="margin: 0 0 4px 0; font-size: 0.8rem; color: #888;">
-                                    <span th:text="${veiculo.categoria.nome}"></span>
-                                </p>
-                                <p th:text="'€' + ${#numbers.formatDecimal(veiculo.preco, 1, 2)}" class="produto-preco"></p>
-                                <p class="produto-stock">
-                                    <span th:if="${veiculo.quantidade > 0}" th:text="${veiculo.quantidade} + ' em stock'">Em stock</span>
-                                    <span th:if="${veiculo.quantidade == 0}" class="esgotado">Esgotado</span>
-                                </p>
-                                <div style="text-align: center; display: flex; gap: 8px; justify-content: center;">
-                                    <a th:href="@{/veiculo/editar/{id}(id=${veiculo.id})}" class="btn-editar"
-                                       style="padding: 6px 16px; background: #D4A259; color: white; border-radius: 6px; text-decoration: none; font-size: 0.85rem;">
-                                        Editar
-                                    </a>
-                                    <form th:action="@{/veiculo/deletar/{id}(id=${veiculo.id})}" method="post"
-                                          onsubmit="return confirm('Tem a certeza que quer remover este veículo?');">
-                                        <button type="submit" class="btn-remover">Remover</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <div th:if="${#lists.isEmpty(veiculos)}" class="no-results">
-                            <strong>Nenhum veículo registado.</strong>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ABA DE ESTATÍSTICAS -->
-                <div id="tab-stats" class="tab-content">
-                    <!-- Resumo estatístico -->
-                    <div class="stats-overview">
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div class="stat-number" th:text="${totalVendas}">0</div>
-                                <div class="stat-label">Total de Vendas</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number">€<span th:text="${#numbers.formatDecimal(receitaTotal, 1, 2)}">0.00</span></div>
-                                <div class="stat-label">Receita Total</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number">€<span th:text="${#numbers.formatDecimal(ticketMedio, 1, 2)}">0.00</span></div>
-                                <div class="stat-label">Ticket Médio</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number" th:text="${clientesUnicos}">0</div>
-                                <div class="stat-label">Clientes Únicos</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Produtos em destaque -->
-                    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
-                        <div class="produto-destaque" style="flex: 1; min-width: 250px;">
-                            <h2>Produto Mais Vendido</h2>
-                            <div class="destaque-card">
-                                <div class="destaque-nome" th:text="${produtoMaisVendido}">Nenhum produto vendido</div>
-                                <div class="destaque-quantidade">
-                                    <span th:text="${quantidadeMaisVendida}">0</span> unidades vendidas
-                                </div>
-                            </div>
-                        </div>
-                        <div class="produto-destaque" style="flex: 1; min-width: 250px;">
-                            <h2>Produto Menos Vendido</h2>
-                            <div class="destaque-card" style="border-left-color: #C0392B;">
-                                <div class="destaque-nome" th:text="${produtoMenosVendido}">Nenhum produto vendido</div>
-                                <div class="destaque-quantidade">
-                                    <span th:text="${quantidadeMenosVendida}">0</span> unidades vendidas
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Melhores Clientes -->
-                    <div style="margin-top: 20px;" th:if="${melhoresClientes != null and !melhoresClientes.isEmpty()}">
-                        <h2>Melhores Clientes</h2>
-                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                            <thead>
-                                <tr style="background: #3B2F1E; color: #FFF8E7;">
-                                    <th style="padding: 10px; text-align: left;">Email</th>
-                                    <th style="padding: 10px; text-align: center;">Nº Compras</th>
-                                    <th style="padding: 10px; text-align: right;">Total Gasto</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="cliente : ${melhoresClientes}" style="border-bottom: 1px solid #E0DFDD;">
-                                    <td style="padding: 10px;" th:text="${cliente[0]}"></td>
-                                    <td style="padding: 10px; text-align: center;" th:text="${cliente[1]}"></td>
-                                    <td style="padding: 10px; text-align: right;">€<span th:text="${#numbers.formatDecimal(cliente[2], 1, 2)}"></span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Gráficos -->
-                    <div class="charts-container">
-                        <div class="chart-section">
-                            <h3>Vendas por Mês</h3>
-                            <canvas id="vendasChart" width="400" height="200"></canvas>
-                        </div>
-                        <div class="chart-section">
-                            <h3>Top 5 Produtos Mais Vendidos</h3>
-                            <canvas id="produtosVendidosChart" width="400" height="200"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Gráfico de Receita por Mês -->
-                    <div class="charts-container" style="margin-top: 20px;">
-                        <div class="chart-section" style="width: 100%;">
-                            <h3>Valor Faturado por Mês (€)</h3>
-                            <canvas id="receitaChart" width="400" height="200"></canvas>
-                        </div>
+                <div class="card-body">
+                    <h3 th:text="${mobili.nome}"></h3>
+                    <div class="card-category" th:if="${mobili.categoria != null}" th:text="${mobili.categoria.nome}"></div>
+                    <p th:text="'€' + ${#numbers.formatDecimal(mobili.preco, 1, 2)}" class="produto-preco"></p>
+                    <p class="produto-stock">
+                        <span th:if="${mobili.quantidade > 0}" th:text="${mobili.quantidade} + ' em stock'"></span>
+                        <span th:if="${mobili.quantidade == 0}" class="esgotado">Esgotado</span>
+                    </p>
+                    <div class="card-actions">
+                        <a th:href="@{/mobilia/editar/{id}(id=${mobili.id})}" class="btn-editar">Editar</a>
+                        <form th:action="@{/mobilia/deletar/{id}(id=${mobili.id})}" method="post"
+                              onsubmit="return confirm('Tem certeza que quer excluir este item?');" style="display:contents;">
+                            <button type="submit" class="btn-remover">Remover</button>
+                        </form>
                     </div>
                 </div>
             </div>
+            <div th:if="${#lists.isEmpty(mobilias)}" class="no-results">
+                <p>Nenhuma mobília registada. Clique em "Novo Produto" para começar.</p>
+            </div>
         </div>
     </div>
-</div>
+
+    <!-- ====== TAB: ESTATÍSTICAS ====== -->
+    <div id="tab-stats" class="tab-content">
+        <!-- Stats overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" th:text="${totalVendas}">0</div>
+                <div class="stat-label">Total de Vendas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">€<span th:text="${#numbers.formatDecimal(receitaTotal, 1, 2)}">0.00</span></div>
+                <div class="stat-label">Receita Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">€<span th:text="${#numbers.formatDecimal(ticketMedio, 1, 2)}">0.00</span></div>
+                <div class="stat-label">Ticket Médio</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" th:text="${clientesUnicos}">0</div>
+                <div class="stat-label">Clientes Únicos</div>
+            </div>
+        </div>
+
+        <!-- Destaque cards -->
+        <div class="destaque-row">
+            <div class="destaque-card mais">
+                <h2>Produto Mais Vendido</h2>
+                <div class="destaque-nome" th:text="${produtoMaisVendido}">Nenhum</div>
+                <div class="destaque-quantidade"><span th:text="${quantidadeMaisVendida}">0</span> unidades vendidas</div>
+            </div>
+            <div class="destaque-card menos">
+                <h2>Produto Menos Vendido</h2>
+                <div class="destaque-nome" th:text="${produtoMenosVendido}">Nenhum</div>
+                <div class="destaque-quantidade"><span th:text="${quantidadeMenosVendida}">0</span> unidades vendidas</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-container">
+            <div class="chart-section">
+                <h3>Vendas por Mês</h3>
+                <div class="chart-wrapper"><canvas id="vendasChart"></canvas></div>
+            </div>
+            <div class="chart-section">
+                <h3>Top 5 Produtos</h3>
+                <div class="chart-wrapper"><canvas id="produtosVendidosChart"></canvas></div>
+            </div>
+        </div>
+        <div class="charts-container" style="margin-top:1.25rem;">
+            <div class="chart-section" style="grid-column: 1 / -1;">
+                <h3>Receita Mensal (€)</h3>
+                <div class="chart-wrapper"><canvas id="receitaChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== TAB: CLIENTES ====== -->
+    <div id="tab-clientes" class="tab-content">
+        <div th:if="${melhoresClientes != null and !melhoresClientes.isEmpty()}">
+            <h3 class="section-title">Top Clientes por Valor Gasto</h3>
+            <table class="clientes-table">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Nº Compras</th>
+                        <th>Total Gasto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="cliente : ${melhoresClientes}">
+                        <td th:text="${cliente[0]}"></td>
+                        <td th:text="${cliente[1]}"></td>
+                        <td>€<span th:text="${#numbers.formatDecimal(cliente[2], 1, 2)}"></span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:if="${melhoresClientes == null or melhoresClientes.isEmpty()}" class="no-results">
+            <p>Ainda não existem clientes com compras realizadas.</p>
+        </div>
+    </div>
+</main>
 
 <script>
 let vendasChart = null;
 let produtosVendidosChart = null;
 let receitaChart = null;
 
-// Funções de navegação entre abas
 function openTab(evt, tabName) {
-    var i, tabcontent, tablinks;
-    tabcontent = document.getElementsByClassName("tab-content");
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].classList.remove("active");
-    }
-    tablinks = document.getElementsByClassName("tab-btn");
-    for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].classList.remove("active");
-    }
-    document.getElementById(tabName).classList.add("active");
-    evt.currentTarget.classList.add("active");
+    // Update tabs
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+    document.getElementById(tabName).classList.add('active');
+    evt.currentTarget.classList.add('active');
 
-    // Carregar estatísticas quando abrir aba
-    if (tabName === 'tab-stats') {
-        setTimeout(() => {
-            carregarEstatisticasAdmin();
-        }, 100);
+    // Update title & actions
+    const title = document.getElementById('page-title');
+    const actions = document.getElementById('top-actions');
+    if (tabName === 'tab-stock') {
+        title.textContent = 'INVENTÁRIO';
+        actions.style.display = 'flex';
+    } else if (tabName === 'tab-stats') {
+        title.textContent = 'ESTATÍSTICAS';
+        actions.style.display = 'none';
+        setTimeout(() => carregarEstatisticasAdmin(), 150);
+    } else {
+        title.textContent = 'CLIENTES';
+        actions.style.display = 'none';
     }
+
+    evt.preventDefault();
 }
 
-// Carregar estatísticas do admin
 function carregarEstatisticasAdmin() {
-    if (vendasChart && produtosVendidosChart && receitaChart) return; // Já carregado
-
+    if (vendasChart && produtosVendidosChart && receitaChart) return;
     fetch('/admin/estatisticas-json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao carregar dados');
-            }
-            return response.json();
-        })
+        .then(r => r.ok ? r.json() : Promise.reject())
         .then(data => {
-            console.log('Dados de vendas recebidos:', data);
-            if (!vendasChart) {
-                criarGraficoVendas(data.vendasPorMes || []);
-            }
-            if (!produtosVendidosChart) {
-                criarGraficoProdutosVendidos(data.produtosMaisVendidos || []);
-            }
-            if (!receitaChart) {
-                criarGraficoReceita(data.receitaPorMes || []);
-            }
+            if (!vendasChart) criarGraficoVendas(data.vendasPorMes || []);
+            if (!produtosVendidosChart) criarGraficoProdutosVendidos(data.produtosMaisVendidos || []);
+            if (!receitaChart) criarGraficoReceita(data.receitaPorMes || []);
         })
-        .catch(error => {
-            console.error('Erro ao carregar estatísticas:', error);
+        .catch(() => {
             if (!vendasChart) criarGraficoVendas([]);
             if (!produtosVendidosChart) criarGraficoProdutosVendidos([]);
             if (!receitaChart) criarGraficoReceita([]);
         });
 }
 
+const chartDefaults = {
+    color: 'rgba(255,248,231,0.6)',
+    borderColor: 'rgba(255,248,231,0.08)',
+};
+
+Chart.defaults.color = chartDefaults.color;
+Chart.defaults.borderColor = chartDefaults.borderColor;
+
 function criarGraficoVendas(vendasPorMes) {
     const ctx = document.getElementById('vendasChart');
     if (!ctx) return;
-
-    const ctxContext = ctx.getContext('2d');
-    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
-                   'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    const dadosVendas = new Array(12).fill(0);
-
+    const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const dados = new Array(12).fill(0);
     if (vendasPorMes && Array.isArray(vendasPorMes)) {
         vendasPorMes.forEach(item => {
             if (item && item.length >= 3) {
                 const mes = parseInt(item[1]) - 1;
-                if (mes >= 0 && mes < 12) {
-                    dadosVendas[mes] = parseInt(item[2]) || 0;
-                }
+                if (mes >= 0 && mes < 12) dados[mes] = parseInt(item[2]) || 0;
             }
         });
     }
-
-    vendasChart = new Chart(ctxContext, {
+    vendasChart = new Chart(ctx.getContext('2d'), {
         type: 'bar',
         data: {
             labels: meses,
             datasets: [{
-                label: 'Vendas',
-                data: dadosVendas,
-                backgroundColor: '#D4A259',
-                borderColor: '#B5884A',
-                borderWidth: 1
+                label: 'Vendas', data: dados,
+                backgroundColor: 'rgba(212,162,89,0.6)',
+                borderColor: '#D4A259', borderWidth: 1,
+                borderRadius: 4
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1 } }
-            },
+            responsive: true, maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: 'rgba(255,248,231,0.04)' } }, x: { grid: { display: false } } },
             plugins: { legend: { display: false } }
         }
     });
@@ -291,97 +260,59 @@ function criarGraficoVendas(vendasPorMes) {
 function criarGraficoProdutosVendidos(produtosMaisVendidos) {
     const ctx = document.getElementById('produtosVendidosChart');
     if (!ctx) return;
-
-    const ctxContext = ctx.getContext('2d');
-
-    if (!produtosMaisVendidos || !Array.isArray(produtosMaisVendidos) || produtosMaisVendidos.length === 0) {
-        produtosVendidosChart = new Chart(ctxContext, {
+    if (!produtosMaisVendidos || produtosMaisVendidos.length === 0) {
+        produtosVendidosChart = new Chart(ctx.getContext('2d'), {
             type: 'doughnut',
-            data: {
-                labels: ['Nenhum produto vendido'],
-                datasets: [{ data: [1], backgroundColor: ['#E0DFDD'] }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } }
-            }
+            data: { labels: ['Sem dados'], datasets: [{ data: [1], backgroundColor: ['rgba(255,248,231,0.08)'] }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
         });
         return;
     }
-
     const produtos = produtosMaisVendidos.slice(0, 5);
-    const labels = produtos.map(item => item[0] || 'Produto');
-    const valores = produtos.map(item => parseInt(item[1]) || 0);
-    const cores = ['#D4A259', '#B5884A', '#96703B', '#77582C', '#58401D'];
-
-    produtosVendidosChart = new Chart(ctxContext, {
+    const cores = ['#D4A259','#e8b76a','#c29042','#a67832','#8a6228'];
+    produtosVendidosChart = new Chart(ctx.getContext('2d'), {
         type: 'doughnut',
         data: {
-            labels: labels,
-            datasets: [{ data: valores, backgroundColor: cores.slice(0, labels.length) }]
+            labels: produtos.map(i => i[0] || 'Produto'),
+            datasets: [{ data: produtos.map(i => parseInt(i[1]) || 0), backgroundColor: cores.slice(0, produtos.length), borderWidth: 0 }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom' } }
-        }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
     });
 }
 
 function criarGraficoReceita(receitaPorMes) {
     const ctx = document.getElementById('receitaChart');
     if (!ctx) return;
-
-    const ctxContext = ctx.getContext('2d');
-    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
-                   'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    const dadosReceita = new Array(12).fill(0);
-
+    const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const dados = new Array(12).fill(0);
     if (receitaPorMes && Array.isArray(receitaPorMes)) {
         receitaPorMes.forEach(item => {
             if (item && item.length >= 3) {
                 const mes = parseInt(item[1]) - 1;
-                if (mes >= 0 && mes < 12) {
-                    dadosReceita[mes] = parseFloat(item[2]) || 0;
-                }
+                if (mes >= 0 && mes < 12) dados[mes] = parseFloat(item[2]) || 0;
             }
         });
     }
-
-    receitaChart = new Chart(ctxContext, {
+    receitaChart = new Chart(ctx.getContext('2d'), {
         type: 'line',
         data: {
             labels: meses,
             datasets: [{
-                label: 'Receita (€)',
-                data: dadosReceita,
-                borderColor: '#27AE60',
-                backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4
+                label: 'Receita (€)', data: dados,
+                borderColor: '#27ae60', backgroundColor: 'rgba(39,174,96,0.08)',
+                borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            responsive: true, maintainAspectRatio: false,
             scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) { return '€' + value.toFixed(2); }
-                    }
-                }
+                y: { beginAtZero: true, ticks: { callback: v => '€' + v.toFixed(0) }, grid: { color: 'rgba(255,248,231,0.04)' } },
+                x: { grid: { display: false } }
             },
             plugins: { legend: { display: false } }
         }
     });
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Página admin carregada');
-});
 </script>
 </body>
 </html>
