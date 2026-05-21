@@ -1,6 +1,6 @@
 -- =============================================================
 -- Script de criação da base de dados para a aplicação AutoUBI
--- SGBD: PostgreSQL 14+
+-- SGBD: MySQL 8+
 -- =============================================================
 
 -- Criar a base de dados (executar separadamente se necessário)
@@ -10,7 +10,7 @@
 -- Tabela: categoria
 -- =============================================================
 CREATE TABLE IF NOT EXISTS categoria (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL UNIQUE,
     descricao VARCHAR(255)
 );
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS cliente (
 -- Tabela: veiculo (produtos)
 -- =============================================================
 CREATE TABLE IF NOT EXISTS veiculo (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     marca VARCHAR(255),
     ano INTEGER,
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS veiculo (
 -- Tabela: carrinho_item (items no carrinho de compras)
 -- =============================================================
 CREATE TABLE IF NOT EXISTS carrinho_item (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     cliente_email VARCHAR(255) NOT NULL,
     veiculo_id BIGINT NOT NULL,
     quantidade INTEGER NOT NULL DEFAULT 1,
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS carrinho_item (
 -- Tabela: fatura (faturas / vendas)
 -- =============================================================
 CREATE TABLE IF NOT EXISTS fatura (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     cliente_email VARCHAR(255) NOT NULL,
     data_compra TIMESTAMP NOT NULL,
     total_pago DOUBLE PRECISION NOT NULL
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS fatura (
 -- Tabela: item_fatura (itens de cada fatura)
 -- =============================================================
 CREATE TABLE IF NOT EXISTS item_fatura (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     fatura_id BIGINT NOT NULL,
     nome_veiculo VARCHAR(255) NOT NULL,
     preco_unitario DOUBLE PRECISION NOT NULL,
@@ -93,7 +93,7 @@ VALUES
     ('Desportivos', 'Automóveis de alto desempenho e condução desportiva'),
     ('Comerciais', 'Carrinhas, furgões e veículos de trabalho'),
     ('Motos', 'Motociclos, scooters e ciclomotores')
-ON CONFLICT (nome) DO NOTHING;
+ON DUPLICATE KEY UPDATE nome=nome;
 
 -- Utilizador administrador criado automaticamente pelo DataInitializer ao iniciar a aplicação.
 -- Não inserir aqui para evitar conflito de hash. Credenciais: admin@autoubi.pt / admin123
