@@ -33,11 +33,9 @@
     </div>
 </header>
 
-<div class="admin-page">
-    <div class="form-container">
-        <div class="form-box">
-            <div class="content-after-brand">
-                <h1>CATÁLOGO DE VEÍCULOS</h1>
+<div class="page-content">
+    <div class="container">
+        <h1>CATÁLOGO DE VEÍCULOS</h1>
 
         <!-- Alerts -->
         <div th:if="${successMessage}" class="alert alert-success">
@@ -68,13 +66,6 @@
                     <input type="text" name="nome" th:value="${filtroNome}" placeholder="Pesquisar por nome..." class="search-input" />
                     <input type="number" name="precoMin" th:value="${filtroPrecoMin}" placeholder="Preço mín." step="0.01" class="search-input-small" />
                     <input type="number" name="precoMax" th:value="${filtroPrecoMax}" placeholder="Preço máx." step="0.01" class="search-input-small" />
-                    <select name="categoriaId" class="search-input-small" style="padding:0.6rem 0.85rem; background:rgba(255,248,231,0.05); color:#FFF8E7; border:1px solid rgba(255,248,231,0.1); border-radius:8px;">
-                        <option value="">Categoria</option>
-                        <option th:each="cat : ${categorias}"
-                                th:value="${cat.id}" th:text="${cat.nome}"
-                                th:selected="${filtroCategoriaId != null and filtroCategoriaId == cat.id}">
-                        </option>
-                    </select>
                     <label class="search-checkbox">
                         <input type="checkbox" name="emStock" th:checked="${filtroEmStock}" value="true" />
                         Em stock
@@ -85,46 +76,38 @@
             </form>
         </div>
 
-                <!-- Grid de produtos -->
-                <div class="product-grid" style="margin-top: 2rem;">
-                    <div class="product-card" th:each="veiculo : ${veiculos}">
-                        <div style="height: 140px; background: #F7F1E1; text-align: center;">
-                            <img th:src="@{'/' + ${veiculo.imagem}}" th:alt="${veiculo.nome}"
-                                 style="max-height: 140px; object-fit: contain;"
-                                 onerror="this.src='/images/placeholder.jpg';" />
-                        </div>
-                        <div style="padding: 12px;">
-                            <h3 th:text="${veiculo.nome}"></h3>
-                            <p th:if="${veiculo.marca != null}" style="margin: 0 0 2px 0; font-size: 0.8rem; color: #555;">
-                                <span th:text="${veiculo.marca}"></span>
-                                <span th:if="${veiculo.ano != null}" th:text="' · ' + ${veiculo.ano}"></span>
-                            </p>
-                            <p th:if="${veiculo.categoria != null}" style="margin: 0 0 4px 0; font-size: 0.8rem; color: #888;">
-                                <span th:text="${veiculo.categoria.nome}"></span>
-                            </p>
-                            <p th:if="${veiculo.descricao != null and !veiculo.descricao.isEmpty()}" style="margin: 0 0 8px 0; font-size: 0.85rem; color: #666;">
-                                <span th:text="${veiculo.descricao}"></span>
-                            </p>
-                            <p th:text="'€' + ${#numbers.formatDecimal(veiculo.preco, 1, 2)}" class="produto-preco"></p>
-                            <p style="margin: 0 0 10px 0; font-family: 'Roboto', sans-serif; font-size: 0.9rem; color: #555;">
-                                <span th:if="${veiculo.quantidade > 0}" th:text="${veiculo.quantidade} + ' em stock'">Em stock</span>
-                                <span th:if="${veiculo.quantidade == 0}" style="color:#C0392B;">Esgotado</span>
-                            </p>
-                            <div style="text-align: center;">
-                                <form th:action="@{/cliente/carrinho/adicionar}" method="post" style="display:inline;">
-                                    <input type="hidden" name="veiculoId" th:value="${veiculo.id}" />
-                                    <button type="submit" th:disabled="${veiculo.quantidade == 0}" class="btn-adicionar">
-                                        <span th:if="${veiculo.quantidade > 0}">Adicionar</span>
-                                        <span th:if="${veiculo.quantidade == 0}">Esgotado</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div th:if="${#lists.isEmpty(veiculos)}" class="no-results">
-                        <strong>Nenhum veículo encontrado.</strong>
-                    </div>
+        <!-- Grid de produtos -->
+        <div class="product-grid">
+            <div class="product-card" th:each="veiculo : ${veiculos}">
+                <div class="card-image">
+                    <img th:src="@{'/' + ${veiculo.imagem}}" th:alt="${veiculo.nome}"
+                         onerror="this.src='/images/placeholder.jpg';" />
                 </div>
+                <div class="card-body">
+                    <h3 th:text="${veiculo.nome}"></h3>
+                    <div class="card-category" th:if="${veiculo.marca != null}">
+                        <span th:text="${veiculo.marca}"></span>
+                        <span th:if="${veiculo.ano != null}" th:text="' · ' + ${veiculo.ano}"></span>
+                    </div>
+                    <div class="card-category" th:if="${veiculo.categoria != null}" th:text="${veiculo.categoria.nome}"></div>
+                    <p class="card-desc" th:if="${veiculo.descricao != null and !veiculo.descricao.isEmpty()}"
+                       th:text="${veiculo.descricao}"></p>
+                    <p th:text="'€' + ${#numbers.formatDecimal(veiculo.preco, 1, 2)}" class="produto-preco"></p>
+                    <p class="produto-stock">
+                        <span th:if="${veiculo.quantidade > 0}" th:text="${veiculo.quantidade} + ' em stock'"></span>
+                        <span th:if="${veiculo.quantidade == 0}" class="esgotado">Esgotado</span>
+                    </p>
+                    <form th:action="@{/cliente/carrinho/adicionar}" method="post">
+                        <input type="hidden" name="veiculoId" th:value="${veiculo.id}" />
+                        <button type="submit" th:disabled="${veiculo.quantidade == 0}" class="btn-adicionar">
+                            <span th:if="${veiculo.quantidade > 0}">Adicionar</span>
+                            <span th:if="${veiculo.quantidade == 0}">Esgotado</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(veiculos)}" class="no-results">
+                <strong>Nenhum veículo encontrado.</strong>
             </div>
         </div>
     </div>

@@ -132,7 +132,7 @@ body { font-family: 'Roboto', sans-serif; color: #FFF8E7; }
     justify-content: center; width: 100%;
 }
 
-.search-input, .search-input-small {
+.search-input, .search-input-small, .search-row select {
     font-family: 'Roboto', sans-serif;
     padding: 0.6rem 0.85rem;
     border: 1px solid rgba(255,248,231,0.1);
