@@ -62,7 +62,8 @@ CREATE TABLE IF NOT EXISTS fatura (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     cliente_email VARCHAR(255) NOT NULL,
     data_compra TIMESTAMP NOT NULL,
-    total_pago DOUBLE PRECISION NOT NULL
+    total_pago DOUBLE PRECISION NOT NULL,
+    metodo_pagamento VARCHAR(50)
 );
 
 -- =============================================================

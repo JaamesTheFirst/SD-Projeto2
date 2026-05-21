@@ -22,6 +22,9 @@ public class Fatura {
     @Column(nullable = false)
     private double totalPago;
 
+    @Column
+    private String metodoPagamento;
+
     @OneToMany(mappedBy = "fatura", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<ItemFatura> itens;
@@ -38,6 +41,9 @@ public class Fatura {
 
     public double getTotalPago() { return totalPago; }
     public void setTotalPago(double totalPago) { this.totalPago = totalPago; }
+
+    public String getMetodoPagamento() { return metodoPagamento; }
+    public void setMetodoPagamento(String metodoPagamento) { this.metodoPagamento = metodoPagamento; }
 
     public List<ItemFatura> getItens() { return itens; }
     public void setItens(List<ItemFatura> itens) { this.itens = itens; }
