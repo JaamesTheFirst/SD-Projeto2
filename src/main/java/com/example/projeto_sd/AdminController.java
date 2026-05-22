@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.util.Optional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +22,28 @@ public class AdminController {
 
     @Autowired
     private CategoriaRepository categoriaRepository;
+
+    @Autowired
+    private ClienteRepository clienteRepository;
+
+    @GetMapping("/admin/clientes")
+    public String listarClientes(Model model) {
+        model.addAttribute("clientes", clienteRepository.findAll());
+        return "redirect:/admin"; // já carrega na tab
+    }
+
+    @PostMapping("/admin/clientes/toggle")
+    public String toggleCliente(@RequestParam String email, RedirectAttributes redirectAttributes) {
+        Optional<Cliente> opt = clienteRepository.findById(email);
+        if (opt.isPresent()) {
+            Cliente c = opt.get();
+            c.setAtivo(!c.isAtivo());
+            clienteRepository.save(c);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Conta " + email + (c.isAtivo() ? " ativada" : " desativada") + " com sucesso!");
+        }
+        return "redirect:/admin";
+    }
 
     @GetMapping("/admin")
     public String mostrarPaginaAdmin(Model model) {
@@ -70,6 +92,8 @@ public class AdminController {
         model.addAttribute("produtoMenosVendido", produtoMenosVendido);
         model.addAttribute("quantidadeMenosVendida", quantidadeMenosVendida);
         model.addAttribute("melhoresClientes", melhoresClientes);
+        model.addAttribute("encomendas", faturaRepository.findAllByOrderByDataCompraDesc());
+        model.addAttribute("clientes", clienteRepository.findAll());
 
         return "admin";
     }
@@ -106,5 +130,25 @@ public class AdminController {
             dadosVazios.put("receitaPorMes", List.of());
             return ResponseEntity.ok(dadosVazios);
         }
+    }
+
+    @GetMapping("/admin/encomendas")
+    public String listarEncomendas(Model model) {
+        model.addAttribute("encomendas", faturaRepository.findAllByOrderByDataCompraDesc());
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/admin/encomendas/estado")
+    public String atualizarEstado(@RequestParam Long faturaId,
+                                  @RequestParam String estado,
+                                  RedirectAttributes redirectAttributes) {
+        Optional<Fatura> opt = faturaRepository.findById(faturaId);
+        if (opt.isPresent()) {
+            Fatura f = opt.get();
+            f.setEstado(estado);
+            faturaRepository.save(f);
+            redirectAttributes.addFlashAttribute("successMessage", "Estado atualizado com sucesso!");
+        }
+        return "redirect:/admin";
     }
 }

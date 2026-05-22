@@ -76,4 +76,9 @@ public interface FaturaRepository extends JpaRepository<Fatura, Long> {
            "GROUP BY YEAR(f.dataCompra), MONTH(f.dataCompra) " +
            "ORDER BY ano DESC, mes DESC")
     List<Object[]> getReceitaPorMes();
+
+    List<Fatura> findAllByOrderByDataCompraDesc();
+
+    @Query("SELECT f FROM Fatura f LEFT JOIN FETCH f.itens WHERE f.clienteEmail = :email ORDER BY f.dataCompra DESC")
+    List<Fatura> findByClienteEmailWithItens(@Param("email") String email);
 }

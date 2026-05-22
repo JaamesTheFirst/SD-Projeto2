@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Encomenda Confirmada – AutoUBI</title>
+    <link rel="stylesheet" th:href="@{/css/carrinho.css}" />
+    <style>
+        .confirmacao-box { max-width: 560px; margin: 3rem auto; background: rgba(255,248,231,0.05); padding: 2.5rem; border-radius: 12px; text-align: center; }
+        .check-icon { font-size: 3rem; color: #27ae60; margin-bottom: 1rem; }
+        .confirmacao-box h2 { color: #D4A259; margin-bottom: 1rem; }
+        .detalhes { text-align: left; background: rgba(212,162,89,0.08); border-radius: 8px; padding: 1rem 1.5rem; margin: 1.5rem 0; }
+        .detalhe-row { display: flex; justify-content: space-between; padding: .4rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .detalhe-row:last-child { border-bottom: none; font-weight: 700; color: #D4A259; }
+        .btn-pdf { display: inline-block; padding: .8rem 2rem; background: #D4A259; color: #1a1a1a; border-radius: 8px; font-weight: 700; text-decoration: none; margin: .5rem; }
+        .btn-continuar { display: inline-block; padding: .8rem 2rem; border: 1px solid #D4A259; color: #D4A259; border-radius: 8px; font-weight: 700; text-decoration: none; margin: .5rem; }
+    </style>
+</head>
+<body>
+<header class="mb-header">
+    <div class="mb-container">
+        <div class="mb-logo"><a th:href="@{/cliente}">AutoUBI</a></div>
+    </div>
+</header>
+
+<div class="carrinho-page">
+    <div class="container">
+        <div class="confirmacao-box">
+            <div class="check-icon">✓</div>
+            <h2>Encomenda Confirmada!</h2>
+            <p>A tua encomenda foi processada com sucesso.</p>
+
+            <div class="detalhes">
+                <div class="detalhe-row">
+                    <span>Nº Encomenda</span>
+                    <span>#<span th:text="${fatura.id}"></span></span>
+                </div>
+                <div class="detalhe-row">
+                    <span>Data</span>
+                    <span th:text="${#temporals.format(fatura.dataCompra, 'dd/MM/yyyy HH:mm')}"></span>
+                </div>
+                <div class="detalhe-row">
+                    <span>Morada</span>
+                    <span th:text="${fatura.morada}"></span>
+                </div>
+                <div class="detalhe-row">
+                    <span>Pagamento</span>
+                    <span th:text="${fatura.tipoPagamento}"></span>
+                </div>
+                <div class="detalhe-row" th:each="item : ${fatura.itens}">
+                    <span th:text="${item.nomeVeiculo} + ' x' + ${item.quantidade}"></span>
+                    <span>€<span th:text="${#numbers.formatDecimal(item.precoUnitario * item.quantidade, 1, 2)}"></span></span>
+                </div>
+                <div class="detalhe-row">
+                    <span>Total Pago</span>
+                    <span>€<span th:text="${#numbers.formatDecimal(fatura.totalPago, 1, 2)}"></span></span>
+                </div>
+            </div>
+
+            <a th:href="@{/cliente/carrinho/fatura/{id}/pdf(id=${fatura.id})}" class="btn-pdf">📄 Descarregar PDF</a>
+            <a th:href="@{/cliente}" class="btn-continuar">Continuar a Comprar</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
