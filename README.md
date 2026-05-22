@@ -98,7 +98,7 @@ brew install openjdk@21 postgresql@14
    # deve mostrar: openjdk version "21.x.x"
    ```
 
-   Se tiver várias versões de Java instaladas, defina a correcta:
+   Se tiver várias versões de Java instaladas, defina a correta:
    ```bash
    # Linux (Arch/EndeavourOS):
    sudo archlinux-java set java-21-openjdk
