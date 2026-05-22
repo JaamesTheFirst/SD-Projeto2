@@ -6,12 +6,18 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 public class ClienteController {
@@ -98,5 +104,28 @@ public class ClienteController {
             dadosVazios.put("produtosMaisComprados", List.of());
             return ResponseEntity.ok(dadosVazios);
         }
+    }
+
+    @GetMapping("/cliente/veiculo/{id}")
+    public String exibirDetalheVeiculo(@PathVariable Long id, Model model,
+                                       RedirectAttributes redirectAttributes) {
+        Optional<Veiculo> veiculoOpt = veiculoRepository.findById(id);
+        if (veiculoOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Veículo não encontrado.");
+            return "redirect:/cliente";
+        }
+        Veiculo veiculo = veiculoOpt.get();
+        model.addAttribute("veiculo", veiculo);
+
+        if (veiculo.getSpecs() != null && !veiculo.getSpecs().isBlank()) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                LinkedHashMap<String, String> specsMap = mapper.readValue(
+                    veiculo.getSpecs(), new TypeReference<LinkedHashMap<String, String>>() {});
+                model.addAttribute("specsMap", specsMap);
+            } catch (Exception ignored) {}
+        }
+
+        return "veiculo_detalhe";
     }
 }

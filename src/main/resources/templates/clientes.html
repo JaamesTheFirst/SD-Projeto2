@@ -14,10 +14,11 @@
             <a th:href="@{/cliente}">AutoUBI</a>
         </div>
         <nav class="mb-nav"></nav>
-        <a th:href="@{/cliente/carrinho}" class="mb-stat" title="Carrinho">
+        <a th:href="@{/cliente/carrinho}" class="mb-stat cart-icon-wrapper" id="cart-icon" title="Carrinho">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" width="18" height="18">
                 <path d="M12 2C10.34 2 9 3.34 9 5V6H5C3.9 6 3 6.9 3 8V20C3 21.1 3.9 22 5 22H19C20.1 22 21 21.1 21 20V8C21 6.9 20.1 6 19 6H15V5C15 3.34 13.66 2 12 2zM11 6V5C11 4.45 11.45 4 12 4C12.55 4 13 4.45 13 5V6H11zM19 8V20H5V8H19Z"/>
             </svg>
+            <span class="cart-badge" id="cart-badge" style="display:none"></span>
         </a>
         <a th:href="@{/perfil}" class="mb-stat" title="Perfil">
             <svg xmlns="http://www.w3.org/2000/svg" fill="#FFF8E7" viewBox="0 0 24 24" width="18" height="18">
@@ -62,6 +63,7 @@
         <!-- Search bar -->
         <div class="search-container">
             <form th:action="@{/cliente}" method="get" class="search-form">
+                <input type="hidden" name="categoriaId" th:value="${filtroCategoriaId}" th:if="${filtroCategoriaId != null}" />
                 <div class="search-row">
                     <input type="text" name="nome" th:value="${filtroNome}" placeholder="Pesquisar por nome..." class="search-input" />
                     <input type="number" name="precoMin" th:value="${filtroPrecoMin}" placeholder="Preço mín." step="0.01" class="search-input-small" />
@@ -71,7 +73,7 @@
                         Em stock
                     </label>
                     <button type="submit" class="btn-search">Pesquisar</button>
-                    <a th:href="@{/cliente}" class="btn-clear">Limpar</a>
+                    <a th:href="@{/cliente(categoriaId=${filtroCategoriaId})}" class="btn-clear">Limpar</a>
                 </div>
             </form>
         </div>
@@ -79,6 +81,7 @@
         <!-- Grid de produtos -->
         <div class="product-grid">
             <div class="product-card" th:each="veiculo : ${veiculos}">
+                <a th:href="@{/cliente/veiculo/{id}(id=${veiculo.id})}" class="card-link">
                 <div class="card-image">
                     <img th:src="@{'/' + ${veiculo.imagem}}" th:alt="${veiculo.nome}"
                          onerror="this.src='/images/placeholder.jpg';" />
@@ -97,13 +100,16 @@
                         <span th:if="${veiculo.quantidade > 0}" th:text="${veiculo.quantidade} + ' em stock'"></span>
                         <span th:if="${veiculo.quantidade == 0}" class="esgotado">Esgotado</span>
                     </p>
-                    <form th:action="@{/cliente/carrinho/adicionar}" method="post">
-                        <input type="hidden" name="veiculoId" th:value="${veiculo.id}" />
-                        <button type="submit" th:disabled="${veiculo.quantidade == 0}" class="btn-adicionar">
-                            <span th:if="${veiculo.quantidade > 0}">Adicionar</span>
-                            <span th:if="${veiculo.quantidade == 0}">Esgotado</span>
-                        </button>
-                    </form>
+                </div>
+                </a>
+                <div class="card-actions">
+                    <button class="btn-adicionar"
+                            th:disabled="${veiculo.quantidade == 0}"
+                            th:data-veiculo-id="${veiculo.id}"
+                            th:attr="onclick=${veiculo.quantidade > 0} ? 'adicionarAoCarrinho(this)' : null">
+                        <span th:if="${veiculo.quantidade > 0}">Adicionar</span>
+                        <span th:if="${veiculo.quantidade == 0}">Esgotado</span>
+                    </button>
                 </div>
             </div>
             <div th:if="${#lists.isEmpty(veiculos)}" class="no-results">
@@ -112,5 +118,139 @@
         </div>
     </div>
 </div>
+
+<script>
+// Initialize badge count from server on page load
+(function() {
+    fetch('/cliente/carrinho/count')
+        .then(r => r.json())
+        .then(data => updateCartBadge(data.count))
+        .catch(() => {});
+})();
+
+function adicionarAoCarrinho(btn) {
+    const veiculoId = btn.getAttribute('data-veiculo-id');
+    const card = btn.closest('.product-card');
+    const img = card ? card.querySelector('.card-image img') : null;
+
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    if (img) flyToCart(img);
+
+    fetch('/cliente/carrinho/adicionar/ajax', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'veiculoId=' + encodeURIComponent(veiculoId)
+    })
+    .then(r => r.json())
+    .then(data => {
+        showToast(data.message, data.success ? 'success' : 'error');
+        if (data.success) {
+            updateCartBadge(data.cartCount);
+            btn.textContent = 'Adicionado ✓';
+            setTimeout(() => {
+                btn.textContent = 'Adicionar';
+                btn.disabled = false;
+            }, 2000);
+        } else {
+            btn.textContent = 'Adicionar';
+            btn.disabled = false;
+        }
+    })
+    .catch(() => {
+        showToast('Erro ao adicionar ao carrinho.', 'error');
+        btn.textContent = 'Adicionar';
+        btn.disabled = false;
+    });
+}
+
+function flyToCart(img) {
+    const cartIcon = document.getElementById('cart-icon');
+    if (!cartIcon) return;
+
+    const imgRect = img.getBoundingClientRect();
+    const cartRect = cartIcon.getBoundingClientRect();
+
+    const clone = document.createElement('img');
+    clone.src = img.src;
+    clone.className = 'fly-item';
+    clone.style.cssText = [
+        'position:fixed',
+        'left:' + (imgRect.left + imgRect.width / 2 - 30) + 'px',
+        'top:' + (imgRect.top + imgRect.height / 2 - 30) + 'px',
+        'width:60px', 'height:60px',
+        'border-radius:50%',
+        'object-fit:cover',
+        'z-index:9998',
+        'pointer-events:none',
+        'transition:none'
+    ].join(';');
+    document.body.appendChild(clone);
+
+    const destX = cartRect.left + cartRect.width / 2 - 30;
+    const destY = cartRect.top + cartRect.height / 2 - 30;
+
+    requestAnimationFrame(() => {
+        clone.style.transition = 'all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        clone.style.left = destX + 'px';
+        clone.style.top = destY + 'px';
+        clone.style.width = '20px';
+        clone.style.height = '20px';
+        clone.style.opacity = '0.6';
+    });
+
+    setTimeout(() => {
+        clone.remove();
+        pulseBadge();
+    }, 700);
+}
+
+function updateCartBadge(count) {
+    const badge = document.getElementById('cart-badge');
+    if (!badge) return;
+    if (count > 0) {
+        badge.textContent = count > 99 ? '99+' : count;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+function pulseBadge() {
+    const badge = document.getElementById('cart-badge');
+    if (!badge || badge.style.display === 'none') return;
+    badge.classList.remove('badge-pulse');
+    void badge.offsetWidth; // reflow to restart animation
+    badge.classList.add('badge-pulse');
+    setTimeout(() => badge.classList.remove('badge-pulse'), 400);
+}
+
+function showToast(message, type) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const container = document.querySelector('.container');
+    const h1 = container ? container.querySelector('h1') : null;
+
+    // remove any existing dynamic alert
+    const existing = container && container.querySelector('.alert-dynamic');
+    if (existing) existing.remove();
+
+    const banner = document.createElement('div');
+    banner.className = 'alert ' + alertClass + ' alert-dynamic';
+    banner.textContent = message;
+
+    if (h1 && h1.nextSibling) {
+        container.insertBefore(banner, h1.nextSibling);
+    } else if (container) {
+        container.prepend(banner);
+    }
+
+    setTimeout(() => {
+        banner.style.transition = 'opacity 0.4s';
+        banner.style.opacity = '0';
+        setTimeout(() => banner.remove(), 400);
+    }, 4000);
+}
+</script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 package com.example.projeto_sd;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,7 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -39,22 +42,33 @@ public class CarrinhoController {
         return "carrinho";
     }
 
+    @GetMapping("/count")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getCartCount(Authentication auth) {
+        String clienteEmail = auth.getName();
+        int count = carrinhoRepository.findByClienteEmail(clienteEmail)
+                .stream().mapToInt(CarrinhoItem::getQuantidade).sum();
+        return ResponseEntity.ok(Map.of("count", count));
+    }
+
     @PostMapping("/adicionar")
     public String adicionarAoCarrinho(@RequestParam Long veiculoId,
+                                    @RequestParam(required = false) Long categoriaId,
                                     Authentication auth,
                                     RedirectAttributes redirectAttributes) {
         String clienteEmail = auth.getName();
+        String redirectUrl = categoriaId != null ? "redirect:/cliente?categoriaId=" + categoriaId : "redirect:/cliente";
 
         Optional<Veiculo> veiculoOpt = veiculoRepository.findById(veiculoId);
         if (veiculoOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Veículo não encontrado.");
-            return "redirect:/cliente";
+            return redirectUrl;
         }
 
         Veiculo veiculo = veiculoOpt.get();
         if (veiculo.getQuantidade() <= 0) {
             redirectAttributes.addFlashAttribute("errorMessage", "Veículo esgotado.");
-            return "redirect:/cliente";
+            return redirectUrl;
         }
 
         Optional<CarrinhoItem> itemExistente = carrinhoRepository.findByClienteEmailAndVeiculoId(clienteEmail, veiculoId);
@@ -77,7 +91,59 @@ public class CarrinhoController {
             redirectAttributes.addFlashAttribute("successMessage", "Veículo adicionado ao carrinho!");
         }
 
-        return "redirect:/cliente";
+        return redirectUrl;
+    }
+
+    @PostMapping("/adicionar/ajax")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> adicionarAoCarrinhoAjax(
+            @RequestParam Long veiculoId,
+            Authentication auth) {
+        Map<String, Object> result = new HashMap<>();
+        String clienteEmail = auth.getName();
+
+        Optional<Veiculo> veiculoOpt = veiculoRepository.findById(veiculoId);
+        if (veiculoOpt.isEmpty()) {
+            result.put("success", false);
+            result.put("message", "Veículo não encontrado.");
+            return ResponseEntity.status(404).body(result);
+        }
+
+        Veiculo veiculo = veiculoOpt.get();
+        if (veiculo.getQuantidade() <= 0) {
+            result.put("success", false);
+            result.put("message", "Veículo esgotado.");
+            return ResponseEntity.ok(result);
+        }
+
+        Optional<CarrinhoItem> itemExistente = carrinhoRepository.findByClienteEmailAndVeiculoId(clienteEmail, veiculoId);
+        if (itemExistente.isPresent()) {
+            CarrinhoItem item = itemExistente.get();
+            if (item.getQuantidade() < veiculo.getQuantidade()) {
+                item.setQuantidade(item.getQuantidade() + 1);
+                carrinhoRepository.save(item);
+                result.put("success", true);
+                result.put("message", "Quantidade atualizada no carrinho!");
+            } else {
+                result.put("success", false);
+                result.put("message", "Quantidade em stock insuficiente.");
+            }
+        } else {
+            CarrinhoItem novoItem = new CarrinhoItem();
+            novoItem.setClienteEmail(clienteEmail);
+            novoItem.setVeiculo(veiculo);
+            novoItem.setQuantidade(1);
+            carrinhoRepository.save(novoItem);
+            result.put("success", true);
+            result.put("message", "Veículo adicionado ao carrinho!");
+        }
+
+        // return updated total cart count
+        int totalItens = carrinhoRepository.findByClienteEmail(clienteEmail)
+                .stream().mapToInt(CarrinhoItem::getQuantidade).sum();
+        result.put("cartCount", totalItens);
+
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/remover/{id}")
