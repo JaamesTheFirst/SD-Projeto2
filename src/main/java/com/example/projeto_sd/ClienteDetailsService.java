@@ -24,6 +24,10 @@ public class ClienteDetailsService implements UserDetailsService {
         return new User(
                 c.getEmail(),
                 c.getPassword(),
+                /* enabled= */ !c.isSuspended(),
+                /* accountNonExpired= */ true,
+                /* credentialsNonExpired= */ true,
+                /* accountNonLocked= */ !c.isSuspended(),
                 List.of(new SimpleGrantedAuthority(c.getRole()))
         );
     }

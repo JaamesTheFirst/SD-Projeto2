@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Editar Veículo - AutoUBI</title>
+    <link rel="stylesheet" th:href="@{/css/form_veiculo.css}" />
+</head>
+<body>
+<div class="admin-page">
+    <div class="form-container">
+        <div class="form-box">
+            <div class="brand">
+                <h2>AutoUBI</h2>
+            </div>
+            <h1>Editar Veículo</h1>
+
+            <div th:if="${errorMessage}" style="color: red; margin-bottom: 10px;">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <form th:action="@{/veiculo/atualizar/{id}(id=${veiculo.id})}"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                <div class="input-group">
+                    <label for="nome">Nome / Designação:</label>
+                    <input type="text" id="nome" name="nome" th:value="${veiculo.nome}"
+                           placeholder="Ex: Toyota Corolla 2023" required />
+                </div>
+
+                <div class="input-group">
+                    <label for="marca">Marca:</label>
+                    <input type="text" id="marca" name="marca" th:value="${veiculo.marca}"
+                           placeholder="Ex: Toyota, BMW, Renault..." />
+                </div>
+
+                <div class="input-group">
+                    <label for="ano">Ano:</label>
+                    <input type="number" id="ano" name="ano" th:value="${veiculo.ano}"
+                           placeholder="Ex: 2023" min="1900" max="2100" />
+                </div>
+
+                <div class="input-group">
+                    <label for="descricao">Descrição:</label>
+                    <textarea id="descricao" name="descricao" placeholder="Descrição do veículo" rows="3"
+                              style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; font-family:inherit;"
+                              th:text="${veiculo.descricao}"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label for="preco">Preço (€):</label>
+                    <input type="number" step="0.01" min="0.01" id="preco" name="preco"
+                           th:value="${veiculo.preco}" placeholder="Preço" required />
+                </div>
+
+                <div class="input-group">
+                    <label for="quantidade">Quantidade em Stock:</label>
+                    <input type="number" min="0" id="quantidade" name="quantidade"
+                           th:value="${veiculo.quantidade}" placeholder="Quantidade" required />
+                </div>
+
+                <div class="input-group">
+                    <label for="categoriaId">Categoria:</label>
+                    <select id="categoriaId" name="categoriaId"
+                            style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                        <option value="">-- Sem categoria --</option>
+                        <option th:each="cat : ${categorias}"
+                                th:value="${cat.id}"
+                                th:text="${cat.nome}"
+                                th:selected="${veiculo.categoria != null and veiculo.categoria.id == cat.id}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="imageFile">Imagem (deixe vazio para manter a atual):</label>
+                    <div th:if="${veiculo.imagem}" style="margin-bottom: 10px;">
+                        <img th:src="@{'/' + ${veiculo.imagem}}" alt="Imagem atual"
+                             style="max-height: 120px; border-radius: 8px; border: 1px solid #ddd;"
+                             onerror="this.style.display='none';" />
+                    </div>
+                    <input type="file" id="imageFile" name="imageFile" accept="image/*" />
+                </div>
+
+                <!-- Specs editor -->
+                <div class="input-group" style="margin-top:1.25rem;">
+                    <label style="display:block;margin-bottom:0.5rem;">Especificações Técnicas <span style="font-weight:400;font-size:0.8rem;opacity:0.6;">(opcional)</span></label>
+                    <div id="specs-rows" style="display:flex;flex-direction:column;gap:0.4rem;"></div>
+                    <button type="button" onclick="adicionarLinha()" style="margin-top:0.5rem;background:rgba(212,162,89,0.15);border:1px solid rgba(212,162,89,0.4);color:#D4A259;padding:5px 14px;border-radius:5px;cursor:pointer;font-size:0.82rem;">+ Adicionar linha</button>
+                    <input type="hidden" id="specs-input" name="specs" />
+                </div>
+
+                <div class="options" style="margin-top: 15px;">
+                    <a th:href="@{/admin}" class="btn-cancel">Cancelar</a>
+                </div>
+
+                <button type="submit" class="btn-submit">Atualizar Veículo</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+const specsInicial = /*[[${veiculo.specs}]]*/ null;
+
+function adicionarLinha(k, v) {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:0.4rem;align-items:center;';
+    row.innerHTML = `
+        <input type="text" placeholder="Chave" value="${k||''}" class="spec-key"
+               style="flex:1;padding:5px 8px;border:1px solid #ccc;border-radius:4px;font-size:0.85rem;">
+        <input type="text" placeholder="Valor" value="${v||''}" class="spec-val"
+               style="flex:1;padding:5px 8px;border:1px solid #ccc;border-radius:4px;font-size:0.85rem;">
+        <button type="button" onclick="this.parentElement.remove()" style="background:#c0392b;border:none;color:#fff;border-radius:4px;padding:5px 8px;cursor:pointer;font-size:0.8rem;">×</button>`;
+    document.getElementById('specs-rows').appendChild(row);
+}
+
+// Pre-populate existing specs
+try {
+    const s = JSON.parse(specsInicial || 'null');
+    if (s && typeof s === 'object') Object.entries(s).forEach(([k, v]) => adicionarLinha(k, v));
+} catch(e) {}
+
+// Serialise before submit
+document.querySelector('form').addEventListener('submit', () => {
+    const obj = {};
+    document.querySelectorAll('#specs-rows > div').forEach(row => {
+        const k = row.querySelector('.spec-key').value.trim();
+        const v = row.querySelector('.spec-val').value.trim();
+        if (k) obj[k] = v;
+    });
+    document.getElementById('specs-input').value = Object.keys(obj).length ? JSON.stringify(obj) : '';
+});
+</script>
+</body>
+</html>

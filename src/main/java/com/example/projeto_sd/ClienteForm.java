@@ -52,7 +52,7 @@ public class ClienteForm {
         Cliente c = new Cliente();
         c.setEmail(this.email);
         c.setPassword(encoder.encode(this.password));
-        c.setRole("ROLE_USER");
+        c.setRole("USER");
         return c;
     }
 }
