@@ -18,27 +18,24 @@ public class Cliente {
     @Column(nullable = false)
     private String role;
 
-    public String getEmail() {
-        return email;
-    }
+    @Column
+    private String nome;
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    @Column(nullable = false)
+    private boolean suspended = false;
 
-    public String getPassword() {
-        return password;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public String getRole() {
-        return role;
-    }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 
-    public void setRole(String role) {
-        this.role = role;
-    }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+
+    public boolean isSuspended() { return suspended; }
+    public void setSuspended(boolean suspended) { this.suspended = suspended; }
 }

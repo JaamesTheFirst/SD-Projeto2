@@ -30,6 +30,10 @@
             <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
             Clientes
         </a>
+        <a href="#" onclick="openTab(event, 'tab-compras')">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+            Compras
+        </a>
     </nav>
     <div class="sidebar-footer">
         <a th:href="@{/logout}">
@@ -195,31 +199,142 @@
 
     <!-- ====== TAB: CLIENTES ====== -->
     <div id="tab-clientes" class="tab-content">
-        <div th:if="${melhoresClientes != null and !melhoresClientes.isEmpty()}">
-            <h3 class="section-title">Top Clientes por Valor Gasto</h3>
-            <table class="clientes-table">
+        <!-- Sub-tab bar -->
+        <div class="subtab-bar">
+            <button class="subtab-btn active" onclick="openSubTab('sub-todos-clientes', this)">Todos os Clientes</button>
+            <button class="subtab-btn" onclick="openSubTab('sub-top-clientes', this)">Top Clientes</button>
+        </div>
+
+        <!-- Sub-tab: All clients -->
+        <div id="sub-todos-clientes" class="subtab-content active">
+            <div style="display:flex;gap:0.75rem;margin-bottom:1rem;align-items:center;">
+                <input id="clientes-search" type="text" placeholder="Pesquisar por email ou nome…"
+                       oninput="pesquisarClientes()"
+                       style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid rgba(255,248,231,0.15);background:rgba(255,248,231,0.05);color:#FFF8E7;font-size:0.88rem;" />
+                <span id="clientes-count" style="font-size:0.8rem;color:rgba(255,248,231,0.4);"></span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="clientes-table" id="todos-clientes-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Nome</th>
+                            <th>Compras</th>
+                            <th>Total Gasto</th>
+                            <th>Estado</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="todos-clientes-tbody">
+                        <tr><td colspan="6" style="text-align:center;color:rgba(255,248,231,0.3);padding:2rem;">A carregar…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            <div id="clientes-pagination" style="display:flex;gap:0.4rem;justify-content:center;margin-top:1rem;flex-wrap:wrap;"></div>
+        </div>
+
+        <!-- Sub-tab: Top clients -->
+        <div id="sub-top-clientes" class="subtab-content">
+            <div th:if="${melhoresClientes != null and !melhoresClientes.isEmpty()}">
+                <h3 class="section-title">Top Clientes por Valor Gasto</h3>
+                <table class="clientes-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Nº Compras</th>
+                            <th>Total Gasto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="cliente : ${melhoresClientes}">
+                            <td th:text="${cliente[0]}"></td>
+                            <td th:text="${cliente[1]}"></td>
+                            <td>€<span th:text="${#numbers.formatDecimal(cliente[2], 1, 2)}"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${melhoresClientes == null or melhoresClientes.isEmpty()}" class="no-results">
+                <p>Ainda não existem clientes com compras realizadas.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== TAB: COMPRAS ====== -->
+    <div id="tab-compras" class="tab-content">
+        <div style="display:flex;gap:0.75rem;margin-bottom:1rem;align-items:center;">
+            <input id="compras-search" type="text" placeholder="Pesquisar por email do cliente…"
+                   oninput="pesquisarCompras()"
+                   style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid rgba(255,248,231,0.15);background:rgba(255,248,231,0.05);color:#FFF8E7;font-size:0.88rem;" />
+            <span id="compras-count" style="font-size:0.8rem;color:rgba(255,248,231,0.4);"></span>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="clientes-table" id="compras-table">
                 <thead>
                     <tr>
-                        <th>Email</th>
-                        <th>Nº Compras</th>
-                        <th>Total Gasto</th>
+                        <th>#</th>
+                        <th>Cliente</th>
+                        <th>Data</th>
+                        <th>Pagamento</th>
+                        <th>Total</th>
+                        <th></th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr th:each="cliente : ${melhoresClientes}">
-                        <td th:text="${cliente[0]}"></td>
-                        <td th:text="${cliente[1]}"></td>
-                        <td>€<span th:text="${#numbers.formatDecimal(cliente[2], 1, 2)}"></span></td>
-                    </tr>
+                <tbody id="compras-tbody">
+                    <tr><td colspan="6" style="text-align:center;color:rgba(255,248,231,0.3);padding:2rem;">A carregar…</td></tr>
                 </tbody>
             </table>
         </div>
-        <div th:if="${melhoresClientes == null or melhoresClientes.isEmpty()}" class="no-results">
-            <p>Ainda não existem clientes com compras realizadas.</p>
-        </div>
+        <div id="compras-pagination" style="display:flex;gap:0.4rem;justify-content:center;margin-top:1rem;flex-wrap:wrap;"></div>
     </div>
+
 </main>
 
+<style>
+.subtab-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(255,248,231,0.08);
+    padding-bottom: 0.75rem;
+}
+.subtab-btn {
+    background: none;
+    border: 1px solid rgba(255,248,231,0.12);
+    color: rgba(255,248,231,0.5);
+    padding: 6px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: Roboto, sans-serif;
+    transition: all 0.15s;
+}
+.subtab-btn.active {
+    background: rgba(212,162,89,0.15);
+    border-color: #D4A259;
+    color: #D4A259;
+}
+.subtab-content { display: none; }
+.subtab-content.active { display: block; }
+.page-btn {
+    background: rgba(255,248,231,0.06);
+    border: 1px solid rgba(255,248,231,0.12);
+    color: rgba(255,248,231,0.55);
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.78rem;
+}
+.page-btn.active { background: rgba(212,162,89,0.2); border-color: #D4A259; color: #D4A259; }
+.expand-row td { background: rgba(255,248,231,0.03); padding: 0 !important; }
+.expand-inner { padding: 1rem 1.5rem; }
+.expand-items-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-bottom: 0.75rem; }
+.expand-items-table th { color: rgba(255,248,231,0.4); font-weight: 500; text-align: left; padding: 4px 8px; border-bottom: 1px solid rgba(255,248,231,0.08); }
+.expand-items-table td { color: rgba(255,248,231,0.8); padding: 5px 8px; border-bottom: 1px solid rgba(255,248,231,0.04); }
+.badge-suspended { display:inline-block;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);color:#e74c3c;padding:2px 8px;border-radius:10px;font-size:0.75rem; }
+.badge-active { display:inline-block;background:rgba(39,174,96,0.12);border:1px solid rgba(39,174,96,0.3);color:#27ae60;padding:2px 8px;border-radius:10px;font-size:0.75rem; }
+</style>
 <style>
 .btn-periodo {
     background: rgba(255,248,231,0.07);
@@ -262,8 +377,16 @@ function openTab(evt, tabName) {
         title.textContent = 'ESTATÍSTICAS';
         actions.style.display = 'none';
         setTimeout(() => carregarEstatisticasAdmin(), 150);
-    } else {
+    } else if (tabName === 'tab-clientes') {
         title.textContent = 'CLIENTES';
+        actions.style.display = 'none';
+        carregarClientes();
+    } else if (tabName === 'tab-compras') {
+        title.textContent = 'COMPRAS';
+        actions.style.display = 'none';
+        carregarCompras();
+    } else {
+        title.textContent = tabName.replace('tab-','').toUpperCase();
         actions.style.display = 'none';
     }
 
@@ -462,6 +585,227 @@ function fecharDetalhe() {
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharDetalhe(); });
+
+// ===== SUB-TABS =====
+function openSubTab(id, btn) {
+    const parent = btn.closest('.tab-content');
+    parent.querySelectorAll('.subtab-content').forEach(el => el.classList.remove('active'));
+    parent.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+}
+
+// ===== CLIENTS =====
+let todosClientes = [];
+let clientesPage = 1;
+const CLIENTES_PER_PAGE = 15;
+let clientesLoaded = false;
+
+function carregarClientes() {
+    if (clientesLoaded) return;
+    clientesLoaded = true;
+    fetch('/admin/clientes-json')
+        .then(r => r.json())
+        .then(data => {
+            todosClientes = data;
+            renderClientes(data);
+        }).catch(() => {
+            document.getElementById('todos-clientes-tbody').innerHTML =
+                '<tr><td colspan="6" style="text-align:center;color:#e74c3c;">Erro ao carregar clientes.</td></tr>';
+        });
+}
+
+function pesquisarClientes() {
+    const q = document.getElementById('clientes-search').value.trim();
+    clientesPage = 1;
+    if (!q) { renderClientes(todosClientes); return; }
+    const filtrado = todosClientes.filter(c =>
+        c.email.toLowerCase().includes(q.toLowerCase()) ||
+        (c.nome || '').toLowerCase().includes(q.toLowerCase()));
+    renderClientes(filtrado);
+}
+
+function renderClientes(lista) {
+    const total = lista.length;
+    document.getElementById('clientes-count').textContent = total + ' cliente(s)';
+    const totalPages = Math.max(1, Math.ceil(total / CLIENTES_PER_PAGE));
+    if (clientesPage > totalPages) clientesPage = totalPages;
+    const start = (clientesPage - 1) * CLIENTES_PER_PAGE;
+    const pagina = lista.slice(start, start + CLIENTES_PER_PAGE);
+    const csrf = document.querySelector('meta[name="_csrf"]')?.content || '';
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+
+    const tbody = document.getElementById('todos-clientes-tbody');
+    if (pagina.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(255,248,231,0.3);padding:2rem;">Nenhum cliente encontrado.</td></tr>';
+    } else {
+        tbody.innerHTML = pagina.map(c => `
+            <tr id="row-cliente-${CSS.escape(c.email)}">
+                <td>${escHtml(c.email)}</td>
+                <td>${escHtml(c.nome || '—')}</td>
+                <td>${c.totalCompras}</td>
+                <td>€${parseFloat(c.totalGasto).toFixed(2)}</td>
+                <td><span class="${c.suspended ? 'badge-suspended' : 'badge-active'}" id="badge-${CSS.escape(c.email)}">${c.suspended ? 'Suspenso' : 'Ativo'}</span></td>
+                <td style="white-space:nowrap;">
+                    <button onclick="suspenderCliente('${escAttr(c.email)}')" class="btn-editar" style="font-size:0.75rem;padding:3px 9px;" id="btn-suspend-${CSS.escape(c.email)}">${c.suspended ? 'Reativar' : 'Suspender'}</button>
+                    <button onclick="removerCliente('${escAttr(c.email)}')" class="btn-remover" style="font-size:0.75rem;padding:3px 9px;">Remover</button>
+                </td>
+            </tr>`).join('');
+    }
+    renderPagination('clientes-pagination', totalPages, clientesPage, p => { clientesPage = p; renderClientes(lista); });
+}
+
+function suspenderCliente(email) {
+    const csrf = document.querySelector('meta[name="_csrf"]')?.content || '';
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+    fetch('/admin/cliente/' + encodeURIComponent(email) + '/suspender', {
+        method: 'POST', headers: { [csrfHeader]: csrf }
+    }).then(r => r.json()).then(data => {
+        const idx = todosClientes.findIndex(c => c.email === email);
+        if (idx >= 0) todosClientes[idx].suspended = data.suspended;
+        pesquisarClientes();
+    });
+}
+
+function removerCliente(email) {
+    if (!confirm('Remover o cliente ' + email + '? Esta ação é irreversível.')) return;
+    const csrf = document.querySelector('meta[name="_csrf"]')?.content || '';
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+    fetch('/admin/cliente/' + encodeURIComponent(email) + '/remover', {
+        method: 'POST', headers: { [csrfHeader]: csrf }
+    }).then(() => {
+        todosClientes = todosClientes.filter(c => c.email !== email);
+        pesquisarClientes();
+    });
+}
+
+// ===== PURCHASES =====
+let todasCompras = [];
+let comprasPage = 1;
+const COMPRAS_PER_PAGE = 20;
+let comprasLoaded = false;
+let expandedFaturaId = null;
+
+function carregarCompras() {
+    if (comprasLoaded) return;
+    comprasLoaded = true;
+    fetch('/admin/compras-json')
+        .then(r => r.json())
+        .then(data => {
+            todasCompras = data;
+            renderCompras(data);
+        }).catch(() => {
+            document.getElementById('compras-tbody').innerHTML =
+                '<tr><td colspan="6" style="text-align:center;color:#e74c3c;">Erro ao carregar compras.</td></tr>';
+        });
+}
+
+function pesquisarCompras() {
+    const q = document.getElementById('compras-search').value.trim().toLowerCase();
+    comprasPage = 1;
+    expandedFaturaId = null;
+    const filtrado = q ? todasCompras.filter(f => f.clienteEmail.toLowerCase().includes(q)) : todasCompras;
+    renderCompras(filtrado);
+}
+
+function renderCompras(lista) {
+    const total = lista.length;
+    document.getElementById('compras-count').textContent = total + ' compra(s)';
+    const totalPages = Math.max(1, Math.ceil(total / COMPRAS_PER_PAGE));
+    if (comprasPage > totalPages) comprasPage = totalPages;
+    const start = (comprasPage - 1) * COMPRAS_PER_PAGE;
+    const pagina = lista.slice(start, start + COMPRAS_PER_PAGE);
+
+    const tbody = document.getElementById('compras-tbody');
+    if (pagina.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(255,248,231,0.3);padding:2rem;">Nenhuma compra encontrada.</td></tr>';
+    } else {
+        tbody.innerHTML = pagina.map(f => `
+            <tr style="cursor:pointer;" onclick="toggleCompraDetalhe(${f.id}, this)">
+                <td style="color:rgba(255,248,231,0.35);font-size:0.8rem;">#${f.id}</td>
+                <td>${escHtml(f.clienteEmail)}</td>
+                <td>${escHtml(f.dataCompra)}</td>
+                <td>${escHtml(f.metodoPagamento || '—')}</td>
+                <td style="color:#D4A259;font-weight:600;">€${parseFloat(f.totalPago).toFixed(2)}</td>
+                <td style="color:rgba(255,248,231,0.3);font-size:0.8rem;">▸</td>
+            </tr>
+            <tr class="expand-row" id="expand-${f.id}" style="display:none;">
+                <td colspan="6"><div class="expand-inner" id="expand-inner-${f.id}"><em style="color:rgba(255,248,231,0.3);">A carregar…</em></div></td>
+            </tr>`).join('');
+    }
+    renderPagination('compras-pagination', totalPages, comprasPage, p => { comprasPage = p; expandedFaturaId = null; renderCompras(lista); });
+}
+
+function toggleCompraDetalhe(id, row) {
+    const expandRow = document.getElementById('expand-' + id);
+    if (!expandRow) return;
+    const isOpen = expandRow.style.display !== 'none';
+    // Close all
+    document.querySelectorAll('.expand-row').forEach(r => r.style.display = 'none');
+    if (isOpen) { expandedFaturaId = null; return; }
+    expandRow.style.display = '';
+    expandedFaturaId = id;
+    const inner = document.getElementById('expand-inner-' + id);
+    // Only fetch if not yet loaded
+    if (inner.dataset.loaded) return;
+    inner.dataset.loaded = '1';
+    const csrf = document.querySelector('meta[name="_csrf"]')?.content || '';
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+    fetch('/admin/fatura/' + id + '/json', { headers: { [csrfHeader]: csrf } })
+        .then(r => r.json())
+        .then(f => {
+            const itensHtml = (f.itens && f.itens.length > 0)
+                ? `<table class="expand-items-table">
+                    <thead><tr><th>Produto</th><th>Qtd</th><th>Preço Unit.</th><th>Subtotal</th></tr></thead>
+                    <tbody>${f.itens.map(it => `<tr>
+                        <td>${escHtml(it.nome)}</td>
+                        <td>${it.quantidade}</td>
+                        <td>€${parseFloat(it.precoUnitario).toFixed(2)}</td>
+                        <td>€${parseFloat(it.subtotal).toFixed(2)}</td>
+                    </tr>`).join('')}</tbody>
+                   </table>`
+                : '<p style="color:rgba(255,248,231,0.3);font-size:0.85rem;">Sem itens registados.</p>';
+            inner.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+                    <div style="font-size:0.78rem;color:rgba(255,248,231,0.4);">
+                        <strong style="color:#D4A259;">Cliente:</strong> ${escHtml(f.clienteEmail)} &nbsp;|&nbsp;
+                        <strong style="color:#D4A259;">Data:</strong> ${escHtml(f.dataCompra)} &nbsp;|&nbsp;
+                        <strong style="color:#D4A259;">Pagamento:</strong> ${escHtml(f.metodoPagamento || '—')}
+                    </div>
+                    <a href="/fatura/${f.id}/pdf" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#D4A259;color:#1a1410;padding:7px 14px;border-radius:7px;font-size:0.8rem;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;margin-left:1rem;">
+                        <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5v-2z"/></svg>
+                        Baixar Fatura
+                    </a>
+                </div>
+                ${itensHtml}
+                <div style="text-align:right;font-size:0.9rem;color:#FFF8E7;font-weight:600;margin-top:0.25rem;">
+                    Total: <span style="color:#D4A259;">€${parseFloat(f.totalPago).toFixed(2)}</span>
+                </div>`;
+        }).catch(() => {
+            inner.innerHTML = '<p style="color:#e74c3c;font-size:0.85rem;">Erro ao carregar detalhes.</p>';
+        });
+}
+
+// ===== HELPERS =====
+function renderPagination(containerId, totalPages, currentPage, onPage) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (totalPages <= 1) { el.innerHTML = ''; return; }
+    let html = '';
+    for (let p = 1; p <= totalPages; p++) {
+        html += `<button class="page-btn${p === currentPage ? ' active' : ''}" onclick="(${onPage.toString()})(${p})">${p}</button>`;
+    }
+    el.innerHTML = html;
+}
+
+function escHtml(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+    if (s == null) return '';
+    return String(s).replace(/'/g,"\\'");
+}
 </script>
 </body>
 </html>

@@ -21,8 +21,14 @@ CREATE TABLE IF NOT EXISTS categoria (
 CREATE TABLE IF NOT EXISTS cliente (
     email VARCHAR(255) NOT NULL PRIMARY KEY,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL
+    role VARCHAR(50) NOT NULL,
+    nome VARCHAR(255),
+    suspended BOOLEAN NOT NULL DEFAULT FALSE
 );
+
+-- Add columns if upgrading an existing DB
+ALTER TABLE cliente ADD COLUMN IF NOT EXISTS nome VARCHAR(255);
+ALTER TABLE cliente ADD COLUMN IF NOT EXISTS suspended BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- =============================================================
 -- Tabela: veiculo (produtos)

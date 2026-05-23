@@ -4,12 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class AdminController {
@@ -21,8 +20,10 @@ public class AdminController {
     private FaturaRepository faturaRepository;
 
     @Autowired
-    private CategoriaRepository categoriaRepository;
+    private ClienteRepository clienteRepository;
 
+    @Autowired
+    private CategoriaRepository categoriaRepository;
     @GetMapping("/admin")
     public String mostrarPaginaAdmin(Model model) {
         List<Veiculo> veiculos = veiculoRepository.findAll();
@@ -116,5 +117,99 @@ public class AdminController {
             dadosVazios.put("receitaPorSemana", List.of());
             return ResponseEntity.ok(dadosVazios);
         }
+    }
+
+    // ---- Client management endpoints ----
+
+    @GetMapping("/admin/clientes-json")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> listarClientes(
+            @RequestParam(required = false, defaultValue = "") String search) {
+        List<Cliente> clientes = search.isBlank()
+                ? clienteRepository.findAllByOrderByEmailAsc()
+                : clienteRepository.searchByEmailOrNome(search);
+
+        List<Map<String, Object>> result = clientes.stream().map(c -> {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("email", c.getEmail());
+            m.put("nome", c.getNome() != null ? c.getNome() : "");
+            m.put("role", c.getRole());
+            m.put("suspended", c.isSuspended());
+            Long compras = faturaRepository.getNumeroComprasByCliente(c.getEmail());
+            Double gasto = faturaRepository.getTotalGastoByCliente(c.getEmail());
+            m.put("totalCompras", compras != null ? compras : 0);
+            m.put("totalGasto", gasto != null ? gasto : 0.0);
+            return m;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/admin/cliente/{email}/suspender")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> suspenderCliente(@PathVariable String email) {
+        return clienteRepository.findByEmail(email).map(c -> {
+            c.setSuspended(!c.isSuspended());
+            clienteRepository.save(c);
+            Map<String, Object> r = new HashMap<>();
+            r.put("suspended", c.isSuspended());
+            return ResponseEntity.ok(r);
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/admin/cliente/{email}/remover")
+    @ResponseBody
+    public ResponseEntity<Void> removerCliente(@PathVariable String email) {
+        clienteRepository.findByEmail(email).ifPresent(clienteRepository::delete);
+        return ResponseEntity.ok().build();
+    }
+
+    // ---- Purchases list endpoint ----
+
+    @GetMapping("/admin/compras-json")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> listarCompras(
+            @RequestParam(required = false, defaultValue = "") String search) {
+        List<Fatura> faturas = faturaRepository.findAllByOrderByDataCompraDesc();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        List<Map<String, Object>> result = faturas.stream()
+                .filter(f -> search.isBlank() || f.getClienteEmail().toLowerCase().contains(search.toLowerCase()))
+                .map(f -> {
+                    Map<String, Object> m = new LinkedHashMap<>();
+                    m.put("id", f.getId());
+                    m.put("clienteEmail", f.getClienteEmail());
+                    m.put("dataCompra", f.getDataCompra() != null ? f.getDataCompra().format(fmt) : "");
+                    m.put("totalPago", f.getTotalPago());
+                    m.put("metodoPagamento", f.getMetodoPagamento() != null ? f.getMetodoPagamento() : "");
+                    return m;
+                }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/admin/fatura/{id}/json")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> detalhesFatura(@PathVariable Long id) {
+        return faturaRepository.findByIdWithItens(id).map(f -> {
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("id", f.getId());
+            m.put("clienteEmail", f.getClienteEmail());
+            m.put("dataCompra", f.getDataCompra() != null ? f.getDataCompra().format(fmt) : "");
+            m.put("totalPago", f.getTotalPago());
+            m.put("metodoPagamento", f.getMetodoPagamento() != null ? f.getMetodoPagamento() : "");
+            List<Map<String, Object>> itens = f.getItens() == null ? List.of() :
+                f.getItens().stream().map(it -> {
+                    Map<String, Object> i = new LinkedHashMap<>();
+                    i.put("nome", it.getNomeVeiculo());
+                    i.put("quantidade", it.getQuantidade());
+                    i.put("precoUnitario", it.getPrecoUnitario());
+                    i.put("subtotal", it.getSubtotal());
+                    return i;
+                }).collect(Collectors.toList());
+            m.put("itens", itens);
+            return ResponseEntity.ok(m);
+        }).orElse(ResponseEntity.notFound().build());
     }
 }

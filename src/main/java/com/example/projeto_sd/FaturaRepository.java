@@ -97,4 +97,6 @@ public interface FaturaRepository extends JpaRepository<Fatura, Long> {
         "ORDER BY ano ASC, semana ASC",
         nativeQuery = true)
     List<Object[]> getReceitaPorSemana();
+
+    List<Fatura> findAllByOrderByDataCompraDesc();
 }
