@@ -13,7 +13,7 @@ public interface VeiculoRepository extends JpaRepository<Veiculo, Long> {
     List<Veiculo> findByCategoriaId(Long categoriaId);
 
     @Query(value = "SELECT * FROM veiculo WHERE " +
-           "(:nome IS NULL OR LOWER(nome) LIKE '%' || LOWER(:nome) || '%') AND " +
+           "(:nome IS NULL OR LOWER(nome) LIKE CONCAT('%', LOWER(:nome), '%')) AND " +
            "(:precoMin IS NULL OR preco >= :precoMin) AND " +
            "(:precoMax IS NULL OR preco <= :precoMax) AND " +
            "(:categoriaId IS NULL OR categoria_id = :categoriaId) AND " +

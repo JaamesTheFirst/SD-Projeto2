@@ -96,6 +96,14 @@ public class AdminController {
             List<Object[]> receitaPorMes = faturaRepository.getReceitaPorMes();
             dados.put("receitaPorMes", receitaPorMes);
 
+            // Receita por dia (últimos 30 dias)
+            List<Object[]> receitaPorDia = faturaRepository.getReceitaPorDia();
+            dados.put("receitaPorDia", receitaPorDia);
+
+            // Receita por semana (últimas 52 semanas)
+            List<Object[]> receitaPorSemana = faturaRepository.getReceitaPorSemana();
+            dados.put("receitaPorSemana", receitaPorSemana);
+
             return ResponseEntity.ok(dados);
         } catch (Exception e) {
             e.printStackTrace();
@@ -104,6 +112,8 @@ public class AdminController {
             dadosVazios.put("produtosMaisVendidos", List.of());
             dadosVazios.put("melhoresClientes", List.of());
             dadosVazios.put("receitaPorMes", List.of());
+            dadosVazios.put("receitaPorDia", List.of());
+            dadosVazios.put("receitaPorSemana", List.of());
             return ResponseEntity.ok(dadosVazios);
         }
     }

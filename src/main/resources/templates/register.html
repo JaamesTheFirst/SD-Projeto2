@@ -15,6 +15,10 @@
                 <h2>AutoUBI</h2>
             </div>
             <h1>REGISTO</h1>
+            <!-- Guest cart context banner -->
+            <div th:if="${fromGuest}" class="alert" style="background:rgba(212,162,89,0.15);border:1px solid rgba(212,162,89,0.4);color:#D4A259;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.9rem;">
+                Crie uma conta para finalizar a sua compra. Os seus artigos no carrinho serão preservados.
+            </div>
             <div th:if="${successMessage}" class="alert alert-success">
                 <p th:text="${successMessage}"></p>
             </div>
@@ -22,6 +26,7 @@
                 <p th:text="${errorMessage}"></p>
             </div>
             <form th:action="@{/register}" th:object="${clienteForm}" method="post">
+                <input type="hidden" name="from" th:if="${fromGuest}" value="guest" />
                 <div class="input-group">
                     <label>
                         <input type="email" th:field="*{email}" placeholder="Email" required />

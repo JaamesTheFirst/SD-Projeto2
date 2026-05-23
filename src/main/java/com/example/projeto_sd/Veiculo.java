@@ -31,6 +31,9 @@ public class Veiculo {
     @Column(name = "image_path")
     private String imagem;
 
+    @Column(columnDefinition = "TEXT")
+    private String specs;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
@@ -61,4 +64,7 @@ public class Veiculo {
 
     public Categoria getCategoria() { return categoria; }
     public void setCategoria(Categoria categoria) { this.categoria = categoria; }
+
+    public String getSpecs() { return specs; }
+    public void setSpecs(String specs) { this.specs = specs; }
 }

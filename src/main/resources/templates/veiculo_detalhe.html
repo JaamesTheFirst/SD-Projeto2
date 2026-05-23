@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${veiculo.marca} + ' ' + ${veiculo.nome} + ' – AutoUBI'">Detalhe – AutoUBI</title>
+    <link rel="stylesheet" th:href="@{/css/veiculo_detalhe.css}" />
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>
+
+<!-- ====== HEADER ====== -->
+<header class="mb-header">
+    <div class="mb-container">
+        <div class="mb-logo">
+            <a th:href="@{/cliente}">AutoUBI</a>
+        </div>
+        <nav class="mb-nav"></nav>
+        <a th:href="${isGuest} ? '/guest/carrinho' : '/cliente/carrinho'" class="mb-stat cart-icon-wrapper" id="cart-icon" title="Carrinho">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                <path d="M12 2C10.34 2 9 3.34 9 5V6H5C3.9 6 3 6.9 3 8V20C3 21.1 3.9 22 5 22H19C20.1 22 21 21.1 21 20V8C21 6.9 20.1 6 19 6H15V5C15 3.34 13.66 2 12 2zM11 6V5C11 4.45 11.45 4 12 4C12.55 4 13 4.45 13 5V6H11zM19 8V20H5V8H19Z"/>
+            </svg>
+            <span class="cart-badge" id="cart-badge" style="display:none"></span>
+        </a>
+        <!-- logged-in links -->
+        <a th:if="${!isGuest}" th:href="@{/perfil}" class="mb-stat" title="Perfil">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#FFF8E7" viewBox="0 0 24 24" width="18" height="18">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+            </svg>
+        </a>
+        <a th:if="${!isGuest}" th:href="@{/logout}" class="mb-logout" title="Logout">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#FFF8E7" viewBox="0 0 24 24" width="18" height="18">
+                <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+            </svg>
+        </a>
+        <!-- guest links -->
+        <a th:if="${isGuest}" th:href="@{/login}" class="mb-stat" title="Iniciar Sessão">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#FFF8E7" viewBox="0 0 24 24" width="18" height="18">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+            </svg>
+        </a>
+        <a th:if="${isGuest}" th:href="@{/register(from='guest')}" class="mb-logout" title="Registar">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#FFF8E7" viewBox="0 0 24 24" width="18" height="18">
+                <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+        </a>
+    </div>
+</header>
+
+<div class="detalhe-page">
+    <div class="container">
+
+        <!-- Nav bar: back + open in new tab -->
+        <div class="detalhe-nav">
+            <button class="btn-back" onclick="history.back()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+                Voltar
+            </button>
+            <a th:href="@{/cliente/veiculo/{id}(id=${veiculo.id})}" target="_blank" class="btn-newtab">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                </svg>
+                Abrir em nova tab
+            </a>
+        </div>
+
+        <!-- Main layout -->
+        <div class="detalhe-grid">
+
+            <!-- Left: image -->
+            <div class="detalhe-imagem-wrap">
+                <div class="detalhe-imagem">
+                    <img th:src="@{'/' + ${veiculo.imagem}}" th:alt="${veiculo.nome}"
+                         onerror="this.src='/images/placeholder.jpg';" />
+                </div>
+                <div class="detalhe-badge" th:if="${veiculo.categoria != null}" th:text="${veiculo.categoria.nome}"></div>
+            </div>
+
+            <!-- Right: info -->
+            <div class="detalhe-info">
+                <div class="detalhe-marca" th:if="${veiculo.marca != null}">
+                    <span th:text="${veiculo.marca}"></span>
+                    <span th:if="${veiculo.ano != null}" class="detalhe-ano" th:text="${veiculo.ano}"></span>
+                </div>
+                <h1 class="detalhe-nome" th:text="${veiculo.nome}"></h1>
+
+                <div class="detalhe-preco">
+                    <span class="preco-valor" th:text="'€' + ${#numbers.formatDecimal(veiculo.preco, 1, 2)}"></span>
+                    <span class="preco-label">preço de venda ao público</span>
+                </div>
+
+                <div class="detalhe-stock">
+                    <span th:if="${veiculo.quantidade > 0}" class="stock-ok">
+                        ✓ <span th:text="${veiculo.quantidade} + ' unidades em stock'"></span>
+                    </span>
+                    <span th:if="${veiculo.quantidade == 0}" class="stock-esgotado">
+                        ✕ Esgotado
+                    </span>
+                </div>
+
+                <p class="detalhe-descricao" th:if="${veiculo.descricao != null}" th:text="${veiculo.descricao}"></p>
+
+                <!-- Specs grid -->
+                <div class="specs-section">
+                    <h2 class="section-title">Especificações</h2>
+                    <div class="specs-grid" th:if="${specsMap != null}">
+                        <div class="spec-item" th:each="entry : ${specsMap}">
+                            <span class="spec-label" th:text="${entry.key}"></span>
+                            <span class="spec-value" th:text="${entry.value}"></span>
+                        </div>
+                    </div>
+                    <p th:if="${specsMap == null}" style="color:rgba(255,248,231,0.35);font-size:0.9rem;text-align:center;padding:1rem 0;">
+                        Ficha técnica detalhada não disponível.
+                    </p>
+                </div>
+
+                <!-- Trims -->
+                <div class="trims-section">
+                    <h2 class="section-title">Versões Disponíveis</h2>
+                    <div class="trims-list">
+                        <th:block th:with="cat=${veiculo.categoria != null ? veiculo.categoria.nome : ''}">
+                            <th:block th:if="${cat == 'Citadinos' or cat == 'Sedã / Berlina' or cat == 'SUV / Todo-o-Terreno'}">
+                                <span class="trim-badge">Confort</span>
+                                <span class="trim-badge">Style</span>
+                                <span class="trim-badge trim-highlight">Sport</span>
+                                <span class="trim-badge">Executive</span>
+                                <span class="trim-badge trim-top">Top de Gama</span>
+                            </th:block>
+                            <th:block th:if="${cat == 'Elétricos / Híbridos'}">
+                                <span class="trim-badge">Standard Range</span>
+                                <span class="trim-badge trim-highlight">Long Range</span>
+                                <span class="trim-badge trim-top">Performance</span>
+                            </th:block>
+                            <th:block th:if="${cat == 'Desportivos'}">
+                                <span class="trim-badge">Base</span>
+                                <span class="trim-badge trim-highlight">S</span>
+                                <span class="trim-badge trim-top">GTS / RS / AMG</span>
+                            </th:block>
+                            <th:block th:if="${cat == 'Comerciais'}">
+                                <span class="trim-badge">Furgão</span>
+                                <span class="trim-badge">Combi</span>
+                                <span class="trim-badge trim-highlight">Cabine Dupla</span>
+                                <span class="trim-badge">Plataforma</span>
+                            </th:block>
+                            <th:block th:if="${cat == 'Motos'}">
+                                <span class="trim-badge">Standard</span>
+                                <span class="trim-badge trim-highlight">Sport</span>
+                                <span class="trim-badge trim-top">Racing / Special</span>
+                            </th:block>
+                        </th:block>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="detalhe-actions">
+                    <button class="btn-comprar"
+                            id="btn-adicionar"
+                            th:disabled="${veiculo.quantidade == 0}"
+                            th:data-veiculo-id="${veiculo.id}"
+                            th:attr="onclick=${veiculo.quantidade > 0} ? 'adicionarAoCarrinho(this)' : null">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M11 9h2V6h3V4h-3V1h-2v3H8v2h3v3zm-4 9c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm-8.9-5h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01L19.42 4l-3.87 7H8.53L4.27 2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2z"/>
+                        </svg>
+                        <span id="btn-label">
+                            <th:block th:if="${veiculo.quantidade > 0}">Adicionar ao Carrinho</th:block>
+                            <th:block th:if="${veiculo.quantidade == 0}">Esgotado</th:block>
+                        </span>
+                    </button>
+                </div>
+
+            </div>
+        </div><!-- /detalhe-grid -->
+
+    </div>
+</div>
+
+<script th:inline="javascript">
+const IS_GUEST = /*[[${isGuest}]]*/ false;
+const CART_ADD_URL = IS_GUEST ? '/guest/carrinho/adicionar/ajax' : '/cliente/carrinho/adicionar/ajax';
+const CART_COUNT_URL = IS_GUEST ? '/guest/carrinho/count' : '/cliente/carrinho/count';
+
+(function() {
+    fetch(CART_COUNT_URL)
+        .then(r => r.json())
+        .then(data => updateCartBadge(data.count))
+        .catch(() => {});
+})();
+
+function adicionarAoCarrinho(btn) {
+    const veiculoId = btn.getAttribute('data-veiculo-id');
+    const label = document.getElementById('btn-label');
+    btn.disabled = true;
+    if (label) label.textContent = '...';
+
+    const img = document.querySelector('.detalhe-imagem img');
+    if (img) flyToCart(img);
+
+    fetch(CART_ADD_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            [document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN']:
+                document.querySelector('meta[name="_csrf"]')?.content || ''
+        },
+        body: 'veiculoId=' + encodeURIComponent(veiculoId)
+    })
+    .then(r => r.json())
+    .then(data => {
+        showToast(data.message, data.success ? 'success' : 'error');
+        if (data.success) {
+            updateCartBadge(data.cartCount);
+            if (label) label.textContent = 'Adicionado ✓';
+            setTimeout(() => {
+                if (label) label.textContent = 'Adicionar ao Carrinho';
+                btn.disabled = false;
+            }, 2000);
+        } else {
+            if (label) label.textContent = 'Adicionar ao Carrinho';
+            btn.disabled = false;
+        }
+    })
+    .catch(() => {
+        showToast('Erro ao adicionar ao carrinho.', 'error');
+        if (label) label.textContent = 'Adicionar ao Carrinho';
+        btn.disabled = false;
+    });
+}
+
+function flyToCart(img) {
+    const cartIcon = document.getElementById('cart-icon');
+    if (!cartIcon) return;
+    const imgRect = img.getBoundingClientRect();
+    const cartRect = cartIcon.getBoundingClientRect();
+
+    const clone = document.createElement('img');
+    clone.src = img.src;
+    clone.style.cssText = [
+        'position:fixed',
+        'left:' + (imgRect.left + imgRect.width / 2 - 30) + 'px',
+        'top:' + (imgRect.top + imgRect.height / 2 - 30) + 'px',
+        'width:60px', 'height:60px',
+        'border-radius:50%',
+        'object-fit:cover',
+        'z-index:9998',
+        'pointer-events:none',
+        'transition:none'
+    ].join(';');
+    document.body.appendChild(clone);
+
+    const destX = cartRect.left + cartRect.width / 2 - 30;
+    const destY = cartRect.top + cartRect.height / 2 - 30;
+
+    requestAnimationFrame(() => {
+        clone.style.transition = 'all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        clone.style.left = destX + 'px';
+        clone.style.top = destY + 'px';
+        clone.style.width = '20px';
+        clone.style.height = '20px';
+        clone.style.opacity = '0.6';
+    });
+
+    setTimeout(() => {
+        clone.remove();
+        pulseBadge();
+    }, 700);
+}
+
+function updateCartBadge(count) {
+    const badge = document.getElementById('cart-badge');
+    if (!badge) return;
+    if (count > 0) {
+        badge.textContent = count > 99 ? '99+' : count;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+function pulseBadge() {
+    const badge = document.getElementById('cart-badge');
+    if (!badge || badge.style.display === 'none') return;
+    badge.classList.remove('badge-pulse');
+    void badge.offsetWidth;
+    badge.classList.add('badge-pulse');
+    setTimeout(() => badge.classList.remove('badge-pulse'), 400);
+}
+
+function showToast(message, type) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const container = document.querySelector('.detalhe-info');
+
+    const existing = container && container.querySelector('.alert-dynamic');
+    if (existing) existing.remove();
+
+    const banner = document.createElement('div');
+    banner.className = 'alert ' + alertClass + ' alert-dynamic';
+    banner.textContent = message;
+
+    if (container) container.prepend(banner);
+
+    setTimeout(() => {
+        banner.style.transition = 'opacity 0.4s';
+        banner.style.opacity = '0';
+        setTimeout(() => banner.remove(), 400);
+    }, 4000);
+}
+</script>
+</body>
+</html>

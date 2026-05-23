@@ -328,10 +328,16 @@ function mostrarDetalhes(fatura) {
         <div class="fatura-info-modal">
             <p><strong>Data:</strong> ${new Date(fatura.dataCompra).toLocaleString('pt-PT')}</p>
             <p><strong>Total:</strong> €${fatura.totalPago.toFixed(2)}</p>
+            ${fatura.metodoPagamento ? `<p><strong>Método de Pagamento:</strong> ${fatura.metodoPagamento}</p>` : ''}
         </div>
         <div class="itens-lista">
             <h3>Itens da Compra</h3>
             ${itensHtml}
+        </div>
+        <div style="text-align:center; margin-top:1.5rem;">
+            <a href="/api/fatura/${fatura.id}/pdf" class="btn-pdf-download">
+                ⬇ Descarregar Fatura PDF
+            </a>
         </div>
     `;
 }
