@@ -26,10 +26,14 @@
                 <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
             </svg>
         </a>
-        <a th:href="@{/logout}" class="mb-logout" title="Logout">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="#FFF8E7" viewBox="0 0 24 24" width="18" height="18">
-                <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
-            </svg>
+        <form th:action="@{/logout}" method="post" style="display:contents;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="mb-logout" title="Logout" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="#FFF8E7" viewBox="0 0 24 24" width="18" height="18">
+                    <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+                </svg>
+            </button>
+        </form>
         </a>
     </div>
 </header>
