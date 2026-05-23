@@ -42,6 +42,7 @@ public class VeiculoController {
             BindingResult bindingResult,
             @RequestParam("imageFile") MultipartFile imageFile,
             @RequestParam(value = "categoriaId", required = false) Long categoriaId,
+            @RequestParam(value = "specs", required = false) String specs,
             RedirectAttributes redirectAttributes,
             Model model) {
 
@@ -62,6 +63,10 @@ public class VeiculoController {
 
             if (categoriaId != null) {
                 categoriaRepository.findById(categoriaId).ifPresent(veiculo::setCategoria);
+            }
+
+            if (specs != null && !specs.isBlank()) {
+                veiculo.setSpecs(specs);
             }
 
             veiculoRepository.save(veiculo);
@@ -101,6 +106,7 @@ public class VeiculoController {
             @RequestParam int quantidade,
             @RequestParam(value = "categoriaId", required = false) Long categoriaId,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+            @RequestParam(value = "specs", required = false) String specs,
             RedirectAttributes redirectAttributes) {
 
         Optional<Veiculo> veiculoOpt = veiculoRepository.findById(id);
@@ -121,6 +127,11 @@ public class VeiculoController {
             categoriaRepository.findById(categoriaId).ifPresent(veiculo::setCategoria);
         } else {
             veiculo.setCategoria(null);
+        }
+
+        // specs: empty string means clear all specs
+        if (specs != null) {
+            veiculo.setSpecs(specs.isBlank() ? null : specs);
         }
 
         if (imageFile != null && !imageFile.isEmpty()) {

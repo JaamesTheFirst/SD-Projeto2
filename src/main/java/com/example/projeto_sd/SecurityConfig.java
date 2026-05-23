@@ -1,11 +1,11 @@
 package com.example.projeto_sd;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,8 +15,11 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Configuração de segurança que:
@@ -28,6 +31,12 @@ import java.io.IOException;
 public class SecurityConfig {
 
     private final ClienteDetailsService clienteDetailsService;
+
+    @Autowired
+    private CarrinhoRepository carrinhoRepository;
+
+    @Autowired
+    private VeiculoRepository veiculoRepository;
 
     public SecurityConfig(ClienteDetailsService clienteDetailsService) {
         this.clienteDetailsService = clienteDetailsService;
@@ -54,11 +63,6 @@ public class SecurityConfig {
         return provider;
     }
 
-    /**
-     * 3) Cria um AuthenticationSuccessHandler que, após autenticar:
-     *    - Se tiver “ROLE_ADMIN” (ou “ADMIN”), redireciona para /admin;
-     *    - Caso contrário (usuário normal), redireciona para /clientes.
-     */
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
         return new AuthenticationSuccessHandler() {
@@ -68,20 +72,47 @@ public class SecurityConfig {
                     HttpServletResponse response,
                     Authentication authentication
             ) throws IOException, ServletException {
-                // DEBUG: para garantir que este método está sendo chamado,
-                // você pode descomentar a linha abaixo temporariamente:
-                // System.out.println(">> SUCCESS HANDLER: " + authentication.getName() + "  Roles: " + authentication.getAuthorities());
+
+                // Merge guest session cart into the DB for the authenticated user
+                HttpSession session = request.getSession(false);
+                boolean hadGuestCart = false;
+                if (session != null) {
+                    Map<Long, Integer> guestCart = GuestCarrinhoController.getGuestCart(session);
+                    if (!guestCart.isEmpty()) {
+                        String email = authentication.getName();
+                        for (Map.Entry<Long, Integer> entry : guestCart.entrySet()) {
+                            Optional<Veiculo> veiculoOpt = veiculoRepository.findById(entry.getKey());
+                            if (veiculoOpt.isEmpty()) continue;
+                            Veiculo veiculo = veiculoOpt.get();
+                            int qty = Math.min(entry.getValue(), veiculo.getQuantidade());
+                            if (qty <= 0) continue;
+                            Optional<CarrinhoItem> existing =
+                                carrinhoRepository.findByClienteEmailAndVeiculoId(email, veiculo.getId());
+                            if (existing.isPresent()) {
+                                CarrinhoItem item = existing.get();
+                                item.setQuantidade(Math.min(item.getQuantidade() + qty, veiculo.getQuantidade()));
+                                carrinhoRepository.save(item);
+                            } else {
+                                CarrinhoItem item = new CarrinhoItem();
+                                item.setClienteEmail(email);
+                                item.setVeiculo(veiculo);
+                                item.setQuantidade(qty);
+                                carrinhoRepository.save(item);
+                            }
+                        }
+                        session.removeAttribute(GuestCarrinhoController.GUEST_CART);
+                        hadGuestCart = true;
+                    }
+                }
 
                 for (GrantedAuthority authority : authentication.getAuthorities()) {
-                    String papel = authority.getAuthority();
-                    // Caso você salve no banco apenas “ADMIN” (sem prefixo):
-                    if (papel.equals("ADMIN")) {
+                    if (authority.getAuthority().equals("ADMIN")) {
                         response.sendRedirect("/admin");
                         return;
                     }
                 }
-                // Se não encontrou ADMIN na lista de authorities, manda para /clientes
-                response.sendRedirect("/cliente");
+                // If items were merged, send user to cart; otherwise default redirect
+                response.sendRedirect(hadGuestCart ? "/cliente/carrinho" : "/cliente");
             }
         };
     }
@@ -105,7 +136,10 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
-                                "/error"
+                                "/error",
+                                "/cliente",
+                                "/cliente/veiculo/**",
+                                "/guest/**"
                         ).permitAll()
 
                         // 4.2.2) somente ROLE_ADMIN acessa /admin/** e /veiculo/**
@@ -142,8 +176,9 @@ public class SecurityConfig {
                         .permitAll()
                 )
 
-                // 4.5) (Opcional) Desabilita CSRF apenas para facilitar testes locais
-                .csrf(AbstractHttpConfigurer::disable);
+                // 4.5) CSRF protection enabled (Thymeleaf injects token in forms automatically)
+                // AJAX calls must include the X-CSRF-TOKEN header from the _csrf meta tag
+                ;
 
         return http.build();
     }

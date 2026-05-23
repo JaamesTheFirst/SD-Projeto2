@@ -6,6 +6,8 @@
     <title>Administração - AutoUBI</title>
     <link rel="stylesheet" th:href="@{/css/admin.css}" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
 
@@ -61,13 +63,23 @@
     <!-- ====== TAB: INVENTÁRIO ====== -->
     <div id="tab-stock" class="tab-content active">
         <div class="product-grid">
-            <div class="product-card" th:each="mobili : ${veiculos}">
-                <div class="card-image">
+            <div class="product-card" th:each="mobili : ${veiculos}"
+                 th:data-id="${mobili.id}"
+                 th:data-nome="${mobili.nome}"
+                 th:data-marca="${mobili.marca}"
+                 th:data-ano="${mobili.ano}"
+                 th:data-preco="${mobili.preco}"
+                 th:data-quantidade="${mobili.quantidade}"
+                 th:data-descricao="${mobili.descricao}"
+                 th:data-categoria="${mobili.categoria != null ? mobili.categoria.nome : ''}"
+                 th:data-imagem="@{'/' + ${mobili.imagem}}"
+                 th:data-specs="${mobili.specs}">
+                <div class="card-image" onclick="abrirDetalhe(this.closest('.product-card'))" style="cursor:pointer;">
                     <img th:src="@{'/' + ${mobili.imagem}}" th:alt="${mobili.nome}"
                          onerror="this.src='/images/placeholder.jpg';" />
                 </div>
                 <div class="card-body">
-                    <h3 th:text="${mobili.nome}"></h3>
+                    <h3 th:text="${mobili.nome}" onclick="abrirDetalhe(this.closest('.product-card'))" style="cursor:pointer;"></h3>
                     <div class="card-category" th:if="${mobili.categoria != null}" th:text="${mobili.categoria.nome}"></div>
                     <p th:text="'€' + ${#numbers.formatDecimal(mobili.preco, 1, 2)}" class="produto-preco"></p>
                     <p class="produto-stock">
@@ -75,7 +87,8 @@
                         <span th:if="${mobili.quantidade == 0}" class="esgotado">Esgotado</span>
                     </p>
                     <div class="card-actions">
-                        <a th:href="@{/veiculo/editar/{id}(id=${mobili.id})}" class="btn-editar">Editar</a>
+                        <button type="button" class="btn-editar" onclick="abrirDetalhe(this.closest('.product-card'))">Detalhes</button>
+                        <a th:href="@{/veiculo/editar/{id}(id=${mobili.id})}" class="btn-editar" style="background:rgba(212,162,89,0.15);">Editar</a>
                         <form th:action="@{/veiculo/deletar/{id}(id=${mobili.id})}" method="post"
                               onsubmit="return confirm('Tem certeza que quer excluir este item?');" style="display:contents;">
                             <button type="submit" class="btn-remover">Remover</button>
@@ -85,6 +98,35 @@
             </div>
             <div th:if="${#lists.isEmpty(veiculos)}" class="no-results">
                 <p>Nenhuma mobília registada. Clique em "Novo Produto" para começar.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== PRODUCT DETAIL MODAL ====== -->
+    <div id="produto-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.65);overflow-y:auto;" onclick="if(event.target===this)fecharDetalhe()">
+        <div style="background:#2d2521;border-radius:12px;max-width:680px;margin:40px auto;padding:0;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,248,231,0.1);">
+                <h2 id="modal-nome" style="font-family:Playfair Display,serif;color:#FFF8E7;font-size:1.3rem;"></h2>
+                <button onclick="fecharDetalhe()" style="background:none;border:none;color:rgba(255,248,231,0.5);font-size:1.5rem;cursor:pointer;line-height:1;">&times;</button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+                <div id="modal-img-wrap" style="background:#1a1410;display:flex;align-items:center;justify-content:center;min-height:220px;">
+                    <img id="modal-img" src="" alt="" style="max-height:220px;max-width:100%;object-fit:contain;padding:1rem;" />
+                </div>
+                <div style="padding:1.5rem;">
+                    <div id="modal-meta" style="font-family:Roboto,sans-serif;font-size:0.9rem;color:rgba(255,248,231,0.7);margin-bottom:0.75rem;"></div>
+                    <div style="font-size:1.5rem;font-weight:700;color:#D4A259;margin-bottom:0.4rem;" id="modal-preco"></div>
+                    <div id="modal-stock" style="font-size:0.85rem;margin-bottom:0.75rem;"></div>
+                    <p id="modal-descricao" style="font-size:0.85rem;color:rgba(255,248,231,0.55);line-height:1.5;"></p>
+                </div>
+            </div>
+            <div id="modal-specs-wrap" style="padding:0 1.5rem 1rem;">
+                <h3 style="font-size:0.85rem;font-weight:600;color:rgba(255,248,231,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.75rem;border-top:1px solid rgba(255,248,231,0.07);padding-top:1rem;">Especificações</h3>
+                <div id="modal-specs" style="display:grid;grid-template-columns:1fr 1fr;gap:0.35rem 1rem;"></div>
+                <p id="modal-specs-empty" style="color:rgba(255,248,231,0.3);font-size:0.85rem;display:none;">Sem especificações registadas.</p>
+            </div>
+            <div style="padding:0 1.5rem 1.5rem;display:flex;gap:0.75rem;">
+                <a id="modal-edit-link" href="#" class="btn-editar" style="flex:1;text-align:center;text-decoration:none;">Editar Produto</a>
             </div>
         </div>
     </div>
@@ -138,7 +180,14 @@
         </div>
         <div class="charts-container" style="margin-top:1.25rem;">
             <div class="chart-section" style="grid-column: 1 / -1;">
-                <h3>Receita Mensal (€)</h3>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+                    <h3 style="margin:0;">Valor Faturado (€)</h3>
+                    <div style="display:flex;gap:0.5rem;">
+                        <button onclick="mudarPeriodo('dia')" id="btn-dia" class="btn-periodo active">Dia (30d)</button>
+                        <button onclick="mudarPeriodo('semana')" id="btn-semana" class="btn-periodo">Semana (52s)</button>
+                        <button onclick="mudarPeriodo('mes')" id="btn-mes" class="btn-periodo">Mês</button>
+                    </div>
+                </div>
                 <div class="chart-wrapper"><canvas id="receitaChart"></canvas></div>
             </div>
         </div>
@@ -171,10 +220,30 @@
     </div>
 </main>
 
+<style>
+.btn-periodo {
+    background: rgba(255,248,231,0.07);
+    border: 1px solid rgba(255,248,231,0.15);
+    color: rgba(255,248,231,0.55);
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-family: Roboto, sans-serif;
+    transition: background 0.15s, color 0.15s;
+}
+.btn-periodo.active, .btn-periodo:hover {
+    background: rgba(212,162,89,0.2);
+    border-color: #D4A259;
+    color: #D4A259;
+}
+</style>
 <script>
 let vendasChart = null;
 let produtosVendidosChart = null;
 let receitaChart = null;
+let receitaData = {};
+let periodoAtual = 'dia';
 
 function openTab(evt, tabName) {
     // Update tabs
@@ -202,19 +271,84 @@ function openTab(evt, tabName) {
 }
 
 function carregarEstatisticasAdmin() {
-    if (vendasChart && produtosVendidosChart && receitaChart) return;
+    if (vendasChart && produtosVendidosChart && Object.keys(receitaData).length > 0) return;
     fetch('/admin/estatisticas-json')
         .then(r => r.ok ? r.json() : Promise.reject())
         .then(data => {
+            receitaData = {
+                dia: data.receitaPorDia || [],
+                semana: data.receitaPorSemana || [],
+                mes: data.receitaPorMes || []
+            };
             if (!vendasChart) criarGraficoVendas(data.vendasPorMes || []);
             if (!produtosVendidosChart) criarGraficoProdutosVendidos(data.produtosMaisVendidos || []);
-            if (!receitaChart) criarGraficoReceita(data.receitaPorMes || []);
+            criarOuAtualizarReceitaChart(periodoAtual);
         })
         .catch(() => {
             if (!vendasChart) criarGraficoVendas([]);
             if (!produtosVendidosChart) criarGraficoProdutosVendidos([]);
-            if (!receitaChart) criarGraficoReceita([]);
+            criarOuAtualizarReceitaChart('dia');
         });
+}
+
+function mudarPeriodo(periodo) {
+    periodoAtual = periodo;
+    document.querySelectorAll('.btn-periodo').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + periodo).classList.add('active');
+    criarOuAtualizarReceitaChart(periodo);
+}
+
+function criarOuAtualizarReceitaChart(periodo) {
+    if (receitaChart) { receitaChart.destroy(); receitaChart = null; }
+    const raw = receitaData[periodo] || [];
+    let labels = [], valores = [];
+
+    if (periodo === 'dia') {
+        raw.forEach(item => {
+            labels.push(item[0] ? String(item[0]).substring(5) : '?'); // MM-DD
+            valores.push(parseFloat(item[1]) || 0);
+        });
+    } else if (periodo === 'semana') {
+        raw.forEach(item => {
+            labels.push('S' + item[1] + '/' + String(item[0]).substring(2));
+            valores.push(parseFloat(item[2]) || 0);
+        });
+    } else {
+        const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+        const dados = new Array(12).fill(0);
+        raw.forEach(item => {
+            if (item && item.length >= 3) {
+                const mes = parseInt(item[1]) - 1;
+                if (mes >= 0 && mes < 12) dados[mes] = parseFloat(item[2]) || 0;
+            }
+        });
+        labels = meses;
+        valores = dados;
+    }
+
+    const ctx = document.getElementById('receitaChart');
+    if (!ctx) return;
+    receitaChart = new Chart(ctx.getContext('2d'), {
+        type: periodo === 'dia' ? 'bar' : 'line',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Receita (€)', data: valores,
+                borderColor: '#27ae60', backgroundColor: periodo === 'dia' ? 'rgba(39,174,96,0.5)' : 'rgba(39,174,96,0.08)',
+                borderWidth: periodo === 'dia' ? 1 : 2.5,
+                fill: periodo !== 'dia', tension: 0.4, pointRadius: periodo === 'semana' ? 2 : 3,
+                borderRadius: periodo === 'dia' ? 3 : 0
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, ticks: { callback: v => '€' + v.toFixed(0) }, grid: { color: 'rgba(255,248,231,0.04)' } },
+                x: { grid: { display: false }, ticks: { maxTicksLimit: 15, maxRotation: 45 } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
 }
 
 const chartDefaults = {
@@ -280,39 +414,54 @@ function criarGraficoProdutosVendidos(produtosMaisVendidos) {
     });
 }
 
-function criarGraficoReceita(receitaPorMes) {
-    const ctx = document.getElementById('receitaChart');
-    if (!ctx) return;
-    const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-    const dados = new Array(12).fill(0);
-    if (receitaPorMes && Array.isArray(receitaPorMes)) {
-        receitaPorMes.forEach(item => {
-            if (item && item.length >= 3) {
-                const mes = parseInt(item[1]) - 1;
-                if (mes >= 0 && mes < 12) dados[mes] = parseFloat(item[2]) || 0;
-            }
-        });
-    }
-    receitaChart = new Chart(ctx.getContext('2d'), {
-        type: 'line',
-        data: {
-            labels: meses,
-            datasets: [{
-                label: 'Receita (€)', data: dados,
-                borderColor: '#27ae60', backgroundColor: 'rgba(39,174,96,0.08)',
-                borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true, ticks: { callback: v => '€' + v.toFixed(0) }, grid: { color: 'rgba(255,248,231,0.04)' } },
-                x: { grid: { display: false } }
-            },
-            plugins: { legend: { display: false } }
+function abrirDetalhe(card) {
+    const modal = document.getElementById('produto-modal');
+    document.getElementById('modal-nome').textContent = card.dataset.nome || '';
+    document.getElementById('modal-img').src = card.dataset.imagem || '';
+    document.getElementById('modal-img').alt = card.dataset.nome || '';
+
+    const meta = [card.dataset.marca, card.dataset.ano].filter(Boolean).join(' · ');
+    document.getElementById('modal-meta').textContent = meta;
+    document.getElementById('modal-preco').textContent = '€' + parseFloat(card.dataset.preco || 0).toLocaleString('pt-PT', { minimumFractionDigits: 2 });
+
+    const qty = parseInt(card.dataset.quantidade || 0);
+    const stockEl = document.getElementById('modal-stock');
+    stockEl.textContent = qty > 0 ? qty + ' em stock' : 'Esgotado';
+    stockEl.style.color = qty > 0 ? '#27ae60' : '#e74c3c';
+
+    document.getElementById('modal-descricao').textContent = card.dataset.descricao || '';
+    document.getElementById('modal-edit-link').href = '/veiculo/editar/' + card.dataset.id;
+
+    const specsDiv = document.getElementById('modal-specs');
+    const specsEmpty = document.getElementById('modal-specs-empty');
+    specsDiv.innerHTML = '';
+    try {
+        const specs = JSON.parse(card.dataset.specs || 'null');
+        if (specs && typeof specs === 'object' && Object.keys(specs).length > 0) {
+            Object.entries(specs).forEach(([k, v]) => {
+                specsDiv.innerHTML += `<span style="color:rgba(255,248,231,0.45);font-size:0.82rem;">${k}</span><span style="color:#FFF8E7;font-size:0.85rem;font-weight:500;">${v}</span>`;
+            });
+            specsEmpty.style.display = 'none';
+            specsDiv.style.display = 'grid';
+        } else {
+            specsEmpty.style.display = '';
+            specsDiv.style.display = 'none';
         }
-    });
+    } catch(e) {
+        specsEmpty.style.display = '';
+        specsDiv.style.display = 'none';
+    }
+
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
 }
+
+function fecharDetalhe() {
+    document.getElementById('produto-modal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharDetalhe(); });
 </script>
 </body>
 </html>

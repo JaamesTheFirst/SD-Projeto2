@@ -3,6 +3,7 @@ package com.example.projeto_sd;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,4 +77,24 @@ public interface FaturaRepository extends JpaRepository<Fatura, Long> {
            "GROUP BY YEAR(f.dataCompra), MONTH(f.dataCompra) " +
            "ORDER BY ano DESC, mes DESC")
     List<Object[]> getReceitaPorMes();
+
+    /** Daily revenue for the last 30 days, ordered oldest → newest for charting */
+    @Query(value =
+        "SELECT DATE(data_compra) as dia, SUM(total_pago) as receita " +
+        "FROM fatura " +
+        "WHERE data_compra >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) " +
+        "GROUP BY DATE(data_compra) " +
+        "ORDER BY dia ASC",
+        nativeQuery = true)
+    List<Object[]> getReceitaPorDia();
+
+    /** Weekly revenue for the last 52 weeks (ISO week), ordered oldest → newest */
+    @Query(value =
+        "SELECT YEAR(data_compra) as ano, WEEK(data_compra, 1) as semana, SUM(total_pago) as receita " +
+        "FROM fatura " +
+        "WHERE data_compra >= DATE_SUB(CURDATE(), INTERVAL 52 WEEK) " +
+        "GROUP BY YEAR(data_compra), WEEK(data_compra, 1) " +
+        "ORDER BY ano ASC, semana ASC",
+        nativeQuery = true)
+    List<Object[]> getReceitaPorSemana();
 }
