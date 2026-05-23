@@ -66,6 +66,21 @@
 
     <!-- ====== TAB: INVENTÁRIO ====== -->
     <div id="tab-stock" class="tab-content active">
+        <div class="stock-controls">
+            <input type="text" id="stock-search" placeholder="Pesquisar por nome ou marca…" oninput="aplicarFiltrosStock()" autocomplete="off" />
+            <div class="stock-sort-group">
+                <label>Ordenar por</label>
+                <select id="stock-sort" onchange="onSortChangeStock()">
+                    <option value="">— Nenhum —</option>
+                    <option value="preco">Preço</option>
+                    <option value="potencia">Potência</option>
+                    <option value="tamanho">Tamanho</option>
+                    <option value="aceleracao">0–100 km/h</option>
+                    <option value="consumo">Consumo</option>
+                </select>
+                <button id="stock-sort-dir" class="sort-dir-btn" onclick="toggleSortDirStock()" title="Alternar sentido">↑ Asc</button>
+            </div>
+        </div>
         <div class="product-grid">
             <div class="product-card" th:each="veiculo : ${veiculos}"
                  th:data-id="${veiculo.id}"
@@ -352,6 +367,55 @@
     border-color: #D4A259;
     color: #D4A259;
 }
+/* ===== STOCK CONTROLS ===== */
+.stock-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.25rem;
+    background: rgba(255,248,231,0.03);
+    border-bottom: 1px solid rgba(255,248,231,0.07);
+    flex-wrap: wrap;
+}
+.stock-controls input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    background: rgba(255,248,231,0.06);
+    border: 1px solid rgba(255,248,231,0.15);
+    border-radius: 6px;
+    color: #FFF8E7;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.88rem;
+    outline: none;
+    font-family: Roboto, sans-serif;
+}
+.stock-controls input[type="text"]::placeholder { color: rgba(255,248,231,0.3); }
+.stock-controls input[type="text"]:focus { border-color: rgba(212,162,89,0.5); }
+.stock-sort-group { display: flex; align-items: center; gap: 0.5rem; }
+.stock-sort-group label { font-size: 0.82rem; color: rgba(255,248,231,0.45); white-space: nowrap; }
+.stock-sort-group select {
+    background: rgba(255,248,231,0.06);
+    border: 1px solid rgba(255,248,231,0.15);
+    border-radius: 6px;
+    color: #FFF8E7;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: Roboto, sans-serif;
+}
+.sort-dir-btn {
+    background: rgba(212,162,89,0.12);
+    border: 1px solid rgba(212,162,89,0.25);
+    border-radius: 6px;
+    color: #D4A259;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.83rem;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: Roboto, sans-serif;
+    transition: background 0.15s;
+}
+.sort-dir-btn:hover { background: rgba(212,162,89,0.22); }
 </style>
 <script>
 let vendasChart = null;
@@ -585,6 +649,69 @@ function fecharDetalhe() {
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharDetalhe(); });
+
+// ===== STOCK SEARCH & SORT =====
+let stockSortDir = 'asc';
+const SORT_DEFAULTS = { preco: 'asc', potencia: 'desc', tamanho: 'desc', aceleracao: 'asc', consumo: 'asc' };
+
+function onSortChangeStock() {
+    const field = document.getElementById('stock-sort').value;
+    if (field) {
+        stockSortDir = SORT_DEFAULTS[field];
+        document.getElementById('stock-sort-dir').textContent = stockSortDir === 'asc' ? '↑ Asc' : '↓ Desc';
+    }
+    aplicarFiltrosStock();
+}
+
+function toggleSortDirStock() {
+    stockSortDir = stockSortDir === 'asc' ? 'desc' : 'asc';
+    document.getElementById('stock-sort-dir').textContent = stockSortDir === 'asc' ? '↑ Asc' : '↓ Desc';
+    aplicarFiltrosStock();
+}
+
+function parseSpecNum(str) {
+    if (!str) return Infinity;
+    const s = str.replace(/(\d),(\d)/g, '$1.$2').replace(/(\d)\.(\d{3})(?!\d)/g, '$1$2');
+    const m = s.match(/\d+\.?\d*/);
+    return m ? parseFloat(m[0]) : Infinity;
+}
+
+function getCardSortVal(card, field) {
+    if (field === 'preco') return parseFloat(card.dataset.preco) || Infinity;
+    let sp = {};
+    try { sp = JSON.parse(card.dataset.specs || 'null') || {}; } catch(e) {}
+    if (field === 'potencia') return parseSpecNum(sp['Pot\u00eancia']);
+    if (field === 'tamanho') return parseSpecNum(sp['Dimens\u00f5es']);
+    if (field === 'aceleracao') return parseSpecNum(sp['0\u2013100 km/h']);
+    if (field === 'consumo') return parseSpecNum(sp['Consumo']);
+    return 0;
+}
+
+function aplicarFiltrosStock() {
+    const query = (document.getElementById('stock-search')?.value || '').toLowerCase().trim();
+    const field = document.getElementById('stock-sort')?.value || '';
+    const grid = document.querySelector('#tab-stock .product-grid');
+    if (!grid) return;
+    const cards = Array.from(grid.querySelectorAll('.product-card'));
+    const noResultsEl = grid.querySelector('.no-results');
+    let visible = cards.filter(card =>
+        !query ||
+        (card.dataset.nome || '').toLowerCase().includes(query) ||
+        (card.dataset.marca || '').toLowerCase().includes(query)
+    );
+    if (field) {
+        visible.sort((a, b) => {
+            const va = getCardSortVal(a, field), vb = getCardSortVal(b, field);
+            if (va === Infinity && vb === Infinity) return 0;
+            if (va === Infinity) return 1;
+            if (vb === Infinity) return -1;
+            return stockSortDir === 'asc' ? va - vb : vb - va;
+        });
+    }
+    cards.forEach(c => c.style.display = 'none');
+    visible.forEach(c => { c.style.display = ''; grid.appendChild(c); });
+    if (noResultsEl) noResultsEl.style.display = visible.length === 0 ? '' : 'none';
+}
 
 // ===== SUB-TABS =====
 function openSubTab(id, btn) {

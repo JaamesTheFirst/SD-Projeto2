@@ -94,8 +94,22 @@
         </div>
 
         <!-- Grid de produtos -->
+        <div class="sort-bar">
+            <span class="sort-label">Ordenar por:</span>
+            <div class="sort-chips">
+                <button class="sort-chip active" data-sort="" onclick="ordenarCatalogo(this)">Padrão</button>
+                <button class="sort-chip" data-sort="preco" onclick="ordenarCatalogo(this)">Preço</button>
+                <button class="sort-chip" data-sort="potencia" onclick="ordenarCatalogo(this)">Potência</button>
+                <button class="sort-chip" data-sort="tamanho" onclick="ordenarCatalogo(this)">Tamanho</button>
+                <button class="sort-chip" data-sort="aceleracao" onclick="ordenarCatalogo(this)">0–100 km/h</button>
+                <button class="sort-chip" data-sort="consumo" onclick="ordenarCatalogo(this)">Consumo</button>
+            </div>
+            <button id="cat-sort-dir" class="sort-dir-chip" onclick="toggleSortDirCatalogo()">↑ Asc</button>
+        </div>
         <div class="product-grid">
-            <div class="product-card" th:each="veiculo : ${veiculos}">
+            <div class="product-card" th:each="veiculo : ${veiculos}"
+                 th:data-preco="${veiculo.preco}"
+                 th:data-specs="${veiculo.specs}">
                 <a th:href="@{/cliente/veiculo/{id}(id=${veiculo.id})}" class="card-link">
                 <div class="card-image">
                     <img th:src="@{'/' + ${veiculo.imagem}}" th:alt="${veiculo.nome}"
@@ -134,7 +148,101 @@
     </div>
 </div>
 
+<style>
+.sort-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.75rem 0 0.5rem;
+    flex-wrap: wrap;
+}
+.sort-label { font-size: 0.82rem; color: rgba(255,248,231,0.5); white-space: nowrap; }
+.sort-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.sort-chip {
+    background: rgba(255,248,231,0.06);
+    border: 1px solid rgba(255,248,231,0.15);
+    border-radius: 20px;
+    color: rgba(255,248,231,0.6);
+    padding: 0.28rem 0.75rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: Roboto, sans-serif;
+    transition: all 0.15s;
+}
+.sort-chip.active, .sort-chip:hover {
+    background: rgba(212,162,89,0.15);
+    border-color: #D4A259;
+    color: #D4A259;
+}
+.sort-dir-chip {
+    background: rgba(212,162,89,0.1);
+    border: 1px solid rgba(212,162,89,0.25);
+    border-radius: 20px;
+    color: #D4A259;
+    padding: 0.28rem 0.75rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: Roboto, sans-serif;
+    transition: background 0.15s;
+}
+.sort-dir-chip:hover { background: rgba(212,162,89,0.2); }
+</style>
 <script th:inline="javascript">
+// ===== CATALOGUE SORT =====
+let catSortField = '';
+let catSortDir = 'asc';
+const CAT_SORT_DEFAULTS = { preco: 'asc', potencia: 'desc', tamanho: 'desc', aceleracao: 'asc', consumo: 'asc' };
+
+function parseSpecNum(str) {
+    if (!str) return Infinity;
+    const s = str.replace(/(\d),(\d)/g, '$1.$2').replace(/(\d)\.(\d{3})(?!\d)/g, '$1$2');
+    const m = s.match(/\d+\.?\d*/);
+    return m ? parseFloat(m[0]) : Infinity;
+}
+
+function getCardVal(card, field) {
+    if (field === 'preco') return parseFloat(card.dataset.preco) || Infinity;
+    let sp = {};
+    try { sp = JSON.parse(card.dataset.specs || 'null') || {}; } catch(e) {}
+    if (field === 'potencia') return parseSpecNum(sp['Pot\u00eancia']);
+    if (field === 'tamanho') return parseSpecNum(sp['Dimens\u00f5es']);
+    if (field === 'aceleracao') return parseSpecNum(sp['0\u2013100 km/h']);
+    if (field === 'consumo') return parseSpecNum(sp['Consumo']);
+    return 0;
+}
+
+function ordenarCatalogo(btn) {
+    catSortField = btn.dataset.sort;
+    if (catSortField) {
+        catSortDir = CAT_SORT_DEFAULTS[catSortField];
+        document.getElementById('cat-sort-dir').textContent = catSortDir === 'asc' ? '\u2191 Asc' : '\u2193 Desc';
+    }
+    document.querySelectorAll('.sort-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    aplicarOrdemCatalogo();
+}
+
+function toggleSortDirCatalogo() {
+    catSortDir = catSortDir === 'asc' ? 'desc' : 'asc';
+    document.getElementById('cat-sort-dir').textContent = catSortDir === 'asc' ? '\u2191 Asc' : '\u2193 Desc';
+    aplicarOrdemCatalogo();
+}
+
+function aplicarOrdemCatalogo() {
+    if (!catSortField) return;
+    const grid = document.querySelector('.product-grid');
+    if (!grid) return;
+    const cards = Array.from(grid.querySelectorAll('.product-card'));
+    cards.sort((a, b) => {
+        const va = getCardVal(a, catSortField), vb = getCardVal(b, catSortField);
+        if (va === Infinity && vb === Infinity) return 0;
+        if (va === Infinity) return 1;
+        if (vb === Infinity) return -1;
+        return catSortDir === 'asc' ? va - vb : vb - va;
+    });
+    cards.forEach(c => grid.appendChild(c));
+}
+
 const IS_GUEST = /*[[${isGuest}]]*/ false;
 const CART_ADD_URL = IS_GUEST ? '/guest/carrinho/adicionar/ajax' : '/cliente/carrinho/adicionar/ajax';
 const CART_COUNT_URL = IS_GUEST ? '/guest/carrinho/count' : '/cliente/carrinho/count';
