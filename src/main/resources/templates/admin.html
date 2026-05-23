@@ -14,7 +14,7 @@
 <!-- ====== SIDEBAR ====== -->
 <aside class="sidebar">
     <div class="sidebar-logo">
-        <a th:href="@{/admin}">Mobílubi</a>
+        <a th:href="@{/admin}">AutoUBI</a>
         <span>Painel Admin</span>
     </div>
     <nav class="sidebar-nav">
@@ -67,41 +67,41 @@
     <!-- ====== TAB: INVENTÁRIO ====== -->
     <div id="tab-stock" class="tab-content active">
         <div class="product-grid">
-            <div class="product-card" th:each="mobili : ${veiculos}"
-                 th:data-id="${mobili.id}"
-                 th:data-nome="${mobili.nome}"
-                 th:data-marca="${mobili.marca}"
-                 th:data-ano="${mobili.ano}"
-                 th:data-preco="${mobili.preco}"
-                 th:data-quantidade="${mobili.quantidade}"
-                 th:data-descricao="${mobili.descricao}"
-                 th:data-categoria="${mobili.categoria != null ? mobili.categoria.nome : ''}"
-                 th:data-imagem="@{'/' + ${mobili.imagem}}"
-                 th:data-specs="${mobili.specs}">
+            <div class="product-card" th:each="veiculo : ${veiculos}"
+                 th:data-id="${veiculo.id}"
+                 th:data-nome="${veiculo.nome}"
+                 th:data-marca="${veiculo.marca}"
+                 th:data-ano="${veiculo.ano}"
+                 th:data-preco="${veiculo.preco}"
+                 th:data-quantidade="${veiculo.quantidade}"
+                 th:data-descricao="${veiculo.descricao}"
+                 th:data-categoria="${veiculo.categoria != null ? veiculo.categoria.nome : ''}"
+                 th:data-imagem="@{'/' + ${veiculo.imagem}}"
+                 th:data-specs="${veiculo.specs}">
                 <div class="card-image" onclick="abrirDetalhe(this.closest('.product-card'))" style="cursor:pointer;">
-                    <img th:src="@{'/' + ${mobili.imagem}}" th:alt="${mobili.nome}"
+                    <img th:src="@{'/' + ${veiculo.imagem}}" th:alt="${veiculo.nome}"
                          onerror="this.src='/images/placeholder.jpg';" />
                 </div>
                 <div class="card-body">
-                    <h3 th:text="${mobili.nome}" onclick="abrirDetalhe(this.closest('.product-card'))" style="cursor:pointer;"></h3>
-                    <div class="card-category" th:if="${mobili.categoria != null}" th:text="${mobili.categoria.nome}"></div>
-                    <p th:text="'€' + ${#numbers.formatDecimal(mobili.preco, 1, 2)}" class="produto-preco"></p>
+                    <h3 th:text="${veiculo.nome}" onclick="abrirDetalhe(this.closest('.product-card'))" style="cursor:pointer;"></h3>
+                    <div class="card-category" th:if="${veiculo.categoria != null}" th:text="${veiculo.categoria.nome}"></div>
+                    <p th:text="'€' + ${#numbers.formatDecimal(veiculo.preco, 1, 2)}" class="produto-preco"></p>
                     <p class="produto-stock">
-                        <span th:if="${mobili.quantidade > 0}" th:text="${mobili.quantidade} + ' em stock'"></span>
-                        <span th:if="${mobili.quantidade == 0}" class="esgotado">Esgotado</span>
+                        <span th:if="${veiculo.quantidade > 0}" th:text="${veiculo.quantidade} + ' em stock'"></span>
+                        <span th:if="${veiculo.quantidade == 0}" class="esgotado">Esgotado</span>
                     </p>
                     <div class="card-actions">
                         <button type="button" class="btn-editar" onclick="abrirDetalhe(this.closest('.product-card'))">Detalhes</button>
-                        <a th:href="@{/veiculo/editar/{id}(id=${mobili.id})}" class="btn-editar" style="background:rgba(212,162,89,0.15);">Editar</a>
-                        <form th:action="@{/veiculo/deletar/{id}(id=${mobili.id})}" method="post"
-                              onsubmit="return confirm('Tem certeza que quer excluir este item?');" style="display:contents;">
+                        <a th:href="@{/veiculo/editar/{id}(id=${veiculo.id})}" class="btn-editar" style="background:rgba(212,162,89,0.15);">Editar</a>
+                        <form th:action="@{/veiculo/deletar/{id}(id=${veiculo.id})}" method="post"
+                              onsubmit="return confirm('Tem a certeza que quer eliminar este item?');" style="display:contents;">
                             <button type="submit" class="btn-remover">Remover</button>
                         </form>
                     </div>
                 </div>
             </div>
             <div th:if="${#lists.isEmpty(veiculos)}" class="no-results">
-                <p>Nenhuma mobília registada. Clique em "Novo Produto" para começar.</p>
+                <p>Nenhum veículo registado. Clique em "Novo Produto" para começar.</p>
             </div>
         </div>
     </div>
@@ -668,7 +668,7 @@ function suspenderCliente(email) {
 }
 
 function removerCliente(email) {
-    if (!confirm('Remover o cliente ' + email + '? Esta ação é irreversível.')) return;
+    if (!confirm('Tem a certeza que quer eliminar o cliente ' + email + '? Esta ação é irreversível.')) return;
     const csrf = document.querySelector('meta[name="_csrf"]')?.content || '';
     const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
     fetch('/admin/cliente/' + encodeURIComponent(email) + '/remover', {

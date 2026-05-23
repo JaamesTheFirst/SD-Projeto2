@@ -65,7 +65,7 @@ public class RegisterController {
         if (br.hasErrors() || !form.isPasswordConfirmed()) {
             logger.warn("Validação falhou para o utilizador: " + form.getEmail());
             if (!form.isPasswordConfirmed()) {
-                model.addAttribute("passwordError", "As senhas não conferem.");
+                model.addAttribute("passwordError", "As palavras-passe não coincidem.");
             }
             model.addAttribute("errorMessage", "Erro ao registar o utilizador. Verifique os dados e tente novamente.");
             model.addAttribute("fromGuest", "guest".equals(from));

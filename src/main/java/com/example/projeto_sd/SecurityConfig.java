@@ -52,7 +52,7 @@ public class SecurityConfig {
 
     /**
      * 2) Cria um DaoAuthenticationProvider que aponta para o ClienteDetailsService
-     *    e usa o BCrypt do bean acima para comparar senhas.
+     *    e usa o BCrypt do bean acima para comparar palavras-passe.
      */
     @Bean
     public DaoAuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder) {
@@ -144,7 +144,7 @@ public class SecurityConfig {
 
                         // 4.2.2) somente ROLE_ADMIN acessa /admin/** e /veiculo/**
                         .requestMatchers("/admin/**", "/veiculo/**")
-                        .hasAuthority("ADMIN") // ou .hasRole("ADMIN") se seu banco grava “ROLE_ADMIN”
+                        .hasAuthority("ADMIN") // ou .hasRole("ADMIN") se a base de dados guardar "ROLE_ADMIN"
 
                         // 4.2.3) somente ROLE_USER acessa /clientes/** e /clientes
                         .requestMatchers("/clientes/**", "/clientes")

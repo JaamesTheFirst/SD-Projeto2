@@ -45,8 +45,8 @@
         </div>
         
         <div th:if="${#lists.isEmpty(itensCarrinho)}" class="carrinho-vazio">
-            <p>Seu carrinho está vazio.</p>
-            <a th:href="@{/cliente}" class="btn-voltar">Continuar Comprando</a>
+            <p>O seu carrinho está vazio.</p>
+            <a th:href="@{/cliente}" class="btn-voltar">Continuar a Comprar</a>
         </div>
         
         <div th:if="${!#lists.isEmpty(itensCarrinho)}">
@@ -72,7 +72,7 @@
             <div class="carrinho-total">
                 <h2>Total: €<span th:text="${#numbers.formatDecimal(totalCarrinho, 1, 2)}"></span></h2>
                 <div class="carrinho-acoes">
-                    <a th:href="@{/cliente}" class="btn-continuar">Continuar Comprando</a>
+                    <a th:href="@{/cliente}" class="btn-continuar">Continuar a Comprar</a>
                     <form th:action="@{/cliente/carrinho/finalizar}" method="post" style="display: inline;">
                         <button type="submit" class="btn-finalizar">Finalizar Compra</button>
                     </form>
