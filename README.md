@@ -212,10 +212,6 @@ src/main/java/com/example/projeto_sd/
 - **Build:** Gradle (Wrapper incluído)
 
 
-Aplicação web desenvolvida com **Spring Boot** para a unidade curricular de Sistemas Distribuídos (UBI).
-
-Trata-se de uma loja online de veículos motorizados (T4) que permite a gestão de produtos, compras online, faturação e estatísticas.
-
 ## Requisitos
 
 - **Java 21** (JDK 21 ou superior)
