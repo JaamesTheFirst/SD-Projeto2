@@ -8,7 +8,6 @@
 </head>
 <body>
 <div class="login-page">
-    <!-- COLUNA DO FORMULÁRIO -->
     <div class="form-container">
         <div class="form-box">
             <div class="brand">
@@ -16,7 +15,7 @@
             </div>
             <h1>LOGIN</h1>
 
-            <!-- Mensagens de erro/sucesso -->
+
             <div th:if="${errorMessage}" class="alert alert-danger" style="color: red; margin-bottom: 10px;">
                 <span th:text="${errorMessage}"></span>
             </div>
@@ -24,7 +23,7 @@
                 <span th:text="${successMessage}"></span>
             </div>
 
-            <!-- Formulário usando campos padrão do Spring Security (usandoClienteForm) -->
+
             <form th:action="@{/login-process}" th:object="${clienteForm}" method="post">
                 <div class="input-group">
                     <input type="email" th:field="*{email}" placeholder="Email" required />
@@ -34,7 +33,7 @@
                 </div>
                 <div class="options">
                     <a th:href="@{/register}" class="forgot">Não tem Conta?</a>
-                    <!--<a href="#" class="forgot">Esqueceu-se da Password?</a>-->
+
                 </div>
                 <button type="submit" class="btn-submit">Entrar</button>
             </form>
@@ -47,7 +46,7 @@
             </div>
         </div>
     </div>
-    <!-- COLUNA DA ILUSTRAÇÃO -->
+
     <div class="illustration">
         <img src="/images/s1m.webp" alt="AutoUBI - Loja de Veículos"/>
     </div>

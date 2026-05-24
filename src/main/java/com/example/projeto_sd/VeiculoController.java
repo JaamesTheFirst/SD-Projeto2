@@ -129,7 +129,6 @@ public class VeiculoController {
             veiculo.setCategoria(null);
         }
 
-        // specs: empty string means clear all specs
         if (specs != null) {
             veiculo.setSpecs(specs.isBlank() ? null : specs);
         }

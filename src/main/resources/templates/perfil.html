@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<!-- ====== HEADER DO CLIENTE ====== -->
+
 <header class="mb-header">
     <div class="mb-container">
         <div class="mb-logo">
@@ -77,7 +77,7 @@
                 </div>
             </div>
 
-            <!-- ABA DE ESTATÍSTICAS -->
+
             <div id="tab-stats" class="tab-content">
                 <div class="perfil-section">
                     <h2>Gastos por Mês (Ano Atual)</h2>
@@ -93,7 +93,7 @@
                     </div>
                 </div>
             </div>
-            <!-- ABA DE ENCOMENDAS -->
+
             <div id="tab-encomendas" class="tab-content">
                 <div class="perfil-section">
                     <h2>As Minhas Encomendas</h2>
@@ -104,7 +104,7 @@
     </div>
 </div>
 
-<!-- MODAL DE DETALHES DA FATURA -->
+
 <div id="faturaModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -120,14 +120,13 @@
 </div>
 
 <script>
-// Chart global theme
+
 Chart.defaults.color = 'rgba(255,248,231,0.6)';
 Chart.defaults.borderColor = 'rgba(255,248,231,0.08)';
 
 let gastosChart = null;
 let produtosChart = null;
 
-// Funções de navegação entre abas
 function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tab-content");
@@ -152,7 +151,7 @@ function openTab(evt, tabName) {
     }
 }
 
-// Carregar estatísticas e gráfico
+
 function carregarEstatisticas() {
     if (gastosChart && produtosChart) return; // Já carregado
     

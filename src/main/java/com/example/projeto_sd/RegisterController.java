@@ -80,7 +80,6 @@ public class RegisterController {
             repo.save(c);
             logger.info("Cliente guardado com sucesso: " + c.getEmail());
 
-            // Auto-login: create authentication token and store in session
             UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(
                     c.getEmail(), null,
@@ -91,7 +90,6 @@ public class RegisterController {
             session.setAttribute(
                 HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, sc);
 
-            // Merge guest session cart → DB cart
             Map<Long, Integer> guestCart = GuestCarrinhoController.getGuestCart(session);
             if (!guestCart.isEmpty()) {
                 for (Map.Entry<Long, Integer> entry : guestCart.entrySet()) {

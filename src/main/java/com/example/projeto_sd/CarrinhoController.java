@@ -138,7 +138,6 @@ public class CarrinhoController {
             result.put("message", "Veículo adicionado ao carrinho!");
         }
 
-        // return updated total cart count
         int totalItens = carrinhoRepository.findByClienteEmail(clienteEmail)
                 .stream().mapToInt(CarrinhoItem::getQuantidade).sum();
         result.put("cartCount", totalItens);

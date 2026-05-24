@@ -13,7 +13,6 @@ public class DataInitializer {
                                CategoriaRepository categoriaRepository,
                                PasswordEncoder passwordEncoder) {
         return args -> {
-            // ---- Criar Admin ----
             String adminEmail = "admin@autoubi.pt";
             String adminRawPassword = "admin123";
 
@@ -29,7 +28,7 @@ public class DataInitializer {
                 System.out.println("Utilizador admin já existe.");
             }
 
-            // ---- Criar Categorias ----
+            // Categorias dos carros/veículos
             String[][] categorias = {
                 {"Citadinos", "Veículos compactos e económicos ideais para uso urbano"},
                 {"Sedã / Berlina", "Automóveis de 4 portas com porta-bagagens separado"},

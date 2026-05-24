@@ -82,7 +82,6 @@ public class FaturaController {
             PdfWriter.getInstance(doc, baos);
             doc.open();
 
-            // Header
             Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 24);
             Paragraph title = new Paragraph("AutoUBI", titleFont);
             title.setAlignment(Element.ALIGN_CENTER);
@@ -94,7 +93,6 @@ public class FaturaController {
             doc.add(sub);
             doc.add(new Paragraph(" "));
 
-            // Invoice details
             DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
             Font infoFont = FontFactory.getFont(FontFactory.HELVETICA, 11);
             doc.add(new Paragraph("Nº Fatura: #" + fatura.getId(), infoFont));
@@ -105,7 +103,6 @@ public class FaturaController {
             }
             doc.add(new Paragraph(" "));
 
-            // Items table
             PdfPTable table = new PdfPTable(4);
             table.setWidthPercentage(100);
             table.setWidths(new float[]{50, 10, 20, 20});

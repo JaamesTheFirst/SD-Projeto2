@@ -34,7 +34,6 @@ public interface FaturaRepository extends JpaRepository<Fatura, Long> {
     @Query("SELECT f FROM Fatura f LEFT JOIN FETCH f.itens WHERE f.id = :id")
     Optional<Fatura> findByIdWithItens(@Param("id") Long id);
 
-    // ---- Estatísticas globais (Admin) ----
 
     @Query("SELECT it.nomeVeiculo, SUM(it.quantidade) as quantidadeVendida, SUM(it.precoUnitario * it.quantidade) as totalVendas " +
            "FROM ItemFatura it " +
@@ -78,7 +77,6 @@ public interface FaturaRepository extends JpaRepository<Fatura, Long> {
            "ORDER BY ano DESC, mes DESC")
     List<Object[]> getReceitaPorMes();
 
-    /** Daily revenue for the last 30 days, ordered oldest → newest for charting */
     @Query(value =
         "SELECT DATE(data_compra) as dia, SUM(total_pago) as receita " +
         "FROM fatura " +
@@ -88,7 +86,6 @@ public interface FaturaRepository extends JpaRepository<Fatura, Long> {
         nativeQuery = true)
     List<Object[]> getReceitaPorDia();
 
-    /** Weekly revenue for the last 52 weeks (ISO week), ordered oldest → newest */
     @Query(value =
         "SELECT YEAR(data_compra) as ano, WEEK(data_compra, 1) as semana, SUM(total_pago) as receita " +
         "FROM fatura " +

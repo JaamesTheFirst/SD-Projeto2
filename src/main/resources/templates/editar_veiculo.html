@@ -83,7 +83,6 @@
                     <input type="file" id="imageFile" name="imageFile" accept="image/*" />
                 </div>
 
-                <!-- Specs editor -->
                 <div class="input-group" style="margin-top:1.25rem;">
                     <label style="display:block;margin-bottom:0.5rem;">Especificações Técnicas <span style="font-weight:400;font-size:0.8rem;opacity:0.6;">(opcional)</span></label>
                     <div id="specs-rows" style="display:flex;flex-direction:column;gap:0.4rem;"></div>
@@ -115,13 +114,11 @@ function adicionarLinha(k, v) {
     document.getElementById('specs-rows').appendChild(row);
 }
 
-// Pre-populate existing specs
 try {
     const s = JSON.parse(specsInicial || 'null');
     if (s && typeof s === 'object') Object.entries(s).forEach(([k, v]) => adicionarLinha(k, v));
 } catch(e) {}
 
-// Serialise before submit
 document.querySelector('form').addEventListener('submit', () => {
     const obj = {};
     document.querySelectorAll('#specs-rows > div').forEach(row => {

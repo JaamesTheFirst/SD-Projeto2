@@ -11,7 +11,6 @@
 </head>
 <body>
 
-<!-- ====== SIDEBAR ====== -->
 <aside class="sidebar">
     <div class="sidebar-logo">
         <a th:href="@{/admin}">AutoUBI</a>
@@ -50,7 +49,6 @@
     </div>
 </aside>
 
-<!-- ====== MAIN ====== -->
 <main class="main-content">
     <!-- Top bar -->
     <div class="top-bar">
@@ -63,7 +61,6 @@
         </div>
     </div>
 
-    <!-- Flash messages -->
     <div th:if="${successMessage}" class="flash-message flash-success">
         <span th:text="${successMessage}"></span>
     </div>
@@ -71,7 +68,6 @@
         <span th:text="${errorMessage}"></span>
     </div>
 
-    <!-- ====== TAB: INVENTÁRIO ====== -->
     <div id="tab-stock" class="tab-content active">
         <div class="stock-controls">
             <input type="text" id="stock-search" placeholder="Pesquisar por nome ou marca…" oninput="aplicarFiltrosStock()" autocomplete="off" />
@@ -128,7 +124,6 @@
         </div>
     </div>
 
-    <!-- ====== PRODUCT DETAIL MODAL ====== -->
     <div id="produto-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.65);overflow-y:auto;" onclick="if(event.target===this)fecharDetalhe()">
         <div style="background:#2d2521;border-radius:12px;max-width:680px;margin:40px auto;padding:0;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
             <div style="display:flex;justify-content:space-between;align-items:center;padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,248,231,0.1);">
@@ -157,9 +152,7 @@
         </div>
     </div>
 
-    <!-- ====== TAB: ESTATÍSTICAS ====== -->
     <div id="tab-stats" class="tab-content">
-        <!-- Stats overview -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-number" th:text="${totalVendas}">0</div>
@@ -179,7 +172,6 @@
             </div>
         </div>
 
-        <!-- Destaque cards -->
         <div class="destaque-row">
             <div class="destaque-card mais">
                 <h2>Produto Mais Vendido</h2>
@@ -193,7 +185,6 @@
             </div>
         </div>
 
-        <!-- Charts -->
         <div class="charts-container">
             <div class="chart-section">
                 <h3>Vendas por Mês</h3>
@@ -219,15 +210,12 @@
         </div>
     </div>
 
-    <!-- ====== TAB: CLIENTES ====== -->
     <div id="tab-clientes" class="tab-content">
-        <!-- Sub-tab bar -->
         <div class="subtab-bar">
             <button class="subtab-btn active" onclick="openSubTab('sub-todos-clientes', this)">Todos os Clientes</button>
             <button class="subtab-btn" onclick="openSubTab('sub-top-clientes', this)">Top Clientes</button>
         </div>
 
-        <!-- Sub-tab: All clients -->
         <div id="sub-todos-clientes" class="subtab-content active">
             <div style="display:flex;gap:0.75rem;margin-bottom:1rem;align-items:center;">
                 <input id="clientes-search" type="text" placeholder="Pesquisar por email ou nome…"
@@ -252,11 +240,9 @@
                     </tbody>
                 </table>
             </div>
-            <!-- Pagination -->
             <div id="clientes-pagination" style="display:flex;gap:0.4rem;justify-content:center;margin-top:1rem;flex-wrap:wrap;"></div>
         </div>
 
-        <!-- Sub-tab: Top clients -->
         <div id="sub-top-clientes" class="subtab-content">
             <div th:if="${melhoresClientes != null and !melhoresClientes.isEmpty()}">
                 <h3 class="section-title">Top Clientes por Valor Gasto</h3>
@@ -283,7 +269,6 @@
         </div>
     </div>
 
-    <!-- ====== TAB: COMPRAS ====== -->
     <div id="tab-compras" class="tab-content">
         <div style="display:flex;gap:0.75rem;margin-bottom:1rem;align-items:center;">
             <input id="compras-search" type="text" placeholder="Pesquisar por email do cliente…"
@@ -310,7 +295,7 @@
         </div>
         <div id="compras-pagination" style="display:flex;gap:0.4rem;justify-content:center;margin-top:1rem;flex-wrap:wrap;"></div>
     </div>
-    <!-- ====== TAB: ENCOMENDAS ====== -->
+
     <div id="tab-encomendas" class="tab-content">
         <div class="top-bar-inner">
             <input type="text" id="searchEncomendas" placeholder="Pesquisar por email..."
@@ -399,7 +384,7 @@
     border-color: #D4A259;
     color: #D4A259;
 }
-/* ===== STOCK CONTROLS ===== */
+
 .stock-controls {
     display: flex;
     align-items: center;
@@ -461,13 +446,11 @@ let receitaData = {};
 let periodoAtual = 'dia';
 
 function openTab(evt, tabName) {
-    // Update tabs
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
     document.getElementById(tabName).classList.add('active');
     evt.currentTarget.classList.add('active');
 
-    // Update title & actions
     const title = document.getElementById('page-title');
     const actions = document.getElementById('top-actions');
     if (tabName === 'tab-stock') {
@@ -690,7 +673,6 @@ function fecharDetalhe() {
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharDetalhe(); });
 
-// ===== STOCK SEARCH & SORT =====
 let stockSortDir = 'asc';
 const SORT_DEFAULTS = { preco: 'asc', potencia: 'desc', tamanho: 'desc', aceleracao: 'asc', consumo: 'asc' };
 
@@ -753,7 +735,7 @@ function aplicarFiltrosStock() {
     if (noResultsEl) noResultsEl.style.display = visible.length === 0 ? '' : 'none';
 }
 
-// ===== SUB-TABS =====
+
 function openSubTab(id, btn) {
     const parent = btn.closest('.tab-content');
     parent.querySelectorAll('.subtab-content').forEach(el => el.classList.remove('active'));
@@ -762,7 +744,7 @@ function openSubTab(id, btn) {
     btn.classList.add('active');
 }
 
-// ===== CLIENTS =====
+
 let todosClientes = [];
 let clientesPage = 1;
 const CLIENTES_PER_PAGE = 15;
@@ -846,7 +828,6 @@ function removerCliente(email) {
     });
 }
 
-// ===== PURCHASES =====
 let todasCompras = [];
 let comprasPage = 1;
 const COMPRAS_PER_PAGE = 20;
@@ -913,7 +894,6 @@ function toggleCompraDetalhe(id, row) {
     expandRow.style.display = '';
     expandedFaturaId = id;
     const inner = document.getElementById('expand-inner-' + id);
-    // Only fetch if not yet loaded
     if (inner.dataset.loaded) return;
     inner.dataset.loaded = '1';
     const csrf = document.querySelector('meta[name="_csrf"]')?.content || '';
@@ -953,7 +933,7 @@ function toggleCompraDetalhe(id, row) {
         });
 }
 
-// ===== HELPERS =====
+
 function renderPagination(containerId, totalPages, currentPage, onPage) {
     const el = document.getElementById(containerId);
     if (!el) return;

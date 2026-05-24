@@ -18,7 +18,6 @@ public class GuestCarrinhoController {
     @Autowired
     private VeiculoRepository veiculoRepository;
 
-    /** AJAX — add item to session cart */
     @PostMapping("/guest/carrinho/adicionar/ajax")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> adicionarAjax(
@@ -59,7 +58,6 @@ public class GuestCarrinhoController {
         return ResponseEntity.ok(result);
     }
 
-    /** Badge count for guest */
     @GetMapping("/guest/carrinho/count")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> count(HttpSession session) {
@@ -68,7 +66,6 @@ public class GuestCarrinhoController {
         return ResponseEntity.ok(Map.of("count", count));
     }
 
-    /** Guest cart view */
     @GetMapping("/guest/carrinho")
     public String verCarrinho(HttpSession session, Model model) {
         Map<Long, Integer> cart = getGuestCart(session);
@@ -90,7 +87,6 @@ public class GuestCarrinhoController {
         return "guest_carrinho";
     }
 
-    /** Remove one vehicle from session cart */
     @PostMapping("/guest/carrinho/remover/{veiculoId}")
     public String remover(@PathVariable Long veiculoId,
                           HttpSession session,
@@ -111,7 +107,6 @@ public class GuestCarrinhoController {
         return cart;
     }
 
-    /** Simple DTO used in the guest cart view template */
     public static class GuestCartItem {
         private final Veiculo veiculo;
         private final int quantidade;

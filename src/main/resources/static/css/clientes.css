@@ -7,7 +7,6 @@
 html, body { width: 100%; height: 100%; overflow-x: hidden; background: #1a1410; }
 body { font-family: 'Roboto', sans-serif; color: #FFF8E7; }
 
-/* ====== HEADER ====== */
 .mb-header {
     width: 100%;
     background: linear-gradient(90deg, #4D3B2E, #2d2521);
@@ -49,7 +48,6 @@ body { font-family: 'Roboto', sans-serif; color: #FFF8E7; }
     fill: #FFF8E7; width: 18px; height: 18px;
 }
 
-/* ====== PAGE ====== */
 .page-content {
     margin-top: 60px;
     min-height: calc(100vh - 60px);
@@ -68,7 +66,7 @@ body { font-family: 'Roboto', sans-serif; color: #FFF8E7; }
     margin-bottom: 1.5rem; letter-spacing: 1px;
 }
 
-/* Alerts */
+
 .alert {
     padding: 0.85rem 1.25rem;
     border-radius: 8px; margin-bottom: 1.5rem;
@@ -83,7 +81,6 @@ body { font-family: 'Roboto', sans-serif; color: #FFF8E7; }
     border: 1px solid rgba(231,76,60,0.25);
 }
 
-/* ====== CATEGORIES NAV ====== */
 .category-nav {
     display: flex; flex-wrap: wrap; gap: 8px;
     justify-content: center;
@@ -115,7 +112,6 @@ body { font-family: 'Roboto', sans-serif; color: #FFF8E7; }
     font-weight: 500;
 }
 
-/* ====== SEARCH ====== */
 .search-container {
     width: 100%; margin-bottom: 1.5rem;
     background: rgba(255,248,231,0.03);
@@ -189,7 +185,6 @@ body { font-family: 'Roboto', sans-serif; color: #FFF8E7; }
     transform: translateY(-1px);
 }
 
-/* ====== PRODUCT GRID ====== */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -291,7 +286,6 @@ body { font-family: 'Roboto', sans-serif; color: #FFF8E7; }
     color: rgba(255,248,231,0.4); padding: 3rem;
 }
 
-/* ====== RESPONSIVE ====== */
 @media (max-width: 768px) {
     .page-content { padding: 1rem; }
     .search-row { flex-direction: column; align-items: stretch; }
@@ -299,7 +293,6 @@ body { font-family: 'Roboto', sans-serif; color: #FFF8E7; }
     .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
 }
 
-/* ====== CART ICON BADGE ====== */
 .cart-icon-wrapper {
     position: relative;
     display: inline-flex;

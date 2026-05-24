@@ -119,8 +119,8 @@ public class AdminController {
         }
     }
 
-    // ---- Client management endpoints ----
 
+    //Endpoits a haver com os clientes
     @GetMapping("/admin/clientes-json")
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> listarClientes(
@@ -164,7 +164,6 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
-    // ---- Purchases list endpoint ----
 
     @GetMapping("/admin/compras-json")
     @ResponseBody

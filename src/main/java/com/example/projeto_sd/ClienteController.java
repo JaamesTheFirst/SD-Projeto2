@@ -70,10 +70,8 @@ public class ClienteController {
     public String exibirPerfil(Authentication auth, Model model) {
         String clienteEmail = auth.getName();
 
-        // Histórico de compras
         List<Fatura> faturas = faturaRepository.findByClienteEmailOrderByDataCompraDesc(clienteEmail);
 
-        // Estatísticas básicas
         Double totalGasto = faturaRepository.getTotalGastoByCliente(clienteEmail);
         Long numeroCompras = faturaRepository.getNumeroComprasByCliente(clienteEmail);
         Double mediaGasto = faturaRepository.getMediaGastoByCliente(clienteEmail);
@@ -95,11 +93,9 @@ public class ClienteController {
 
             Map<String, Object> dados = new HashMap<>();
 
-            // Gastos por mês
             List<Object[]> gastosPorMes = faturaRepository.getGastosPorMes(clienteEmail);
             dados.put("gastosPorMes", gastosPorMes);
 
-            // Produtos mais comprados
             List<Object[]> produtosMaisComprados = faturaRepository.getProdutosMaisComprados(clienteEmail);
             dados.put("produtosMaisComprados", produtosMaisComprados);
 

@@ -21,12 +21,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Configuração de segurança que:
- * 1. Utiliza apenas autenticação via base de dados (ClienteDetailsService).
- * 2. Registra o DAO provider para ligar ClienteDetailsService + BCryptPasswordEncoder.
- * 3. Redireciona ADMIN → /admin e USER → /clientes após autenticação bem‐sucedida.
- */
+
 @Configuration
 public class SecurityConfig {
 
@@ -42,18 +37,11 @@ public class SecurityConfig {
         this.clienteDetailsService = clienteDetailsService;
     }
 
-    /**
-     * 1) Define o PasswordEncoder (BCrypt).
-     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * 2) Cria um DaoAuthenticationProvider que aponta para o ClienteDetailsService
-     *    e usa o BCrypt do bean acima para comparar palavras-passe.
-     */
     @Bean
     public DaoAuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -73,7 +61,6 @@ public class SecurityConfig {
                     Authentication authentication
             ) throws IOException, ServletException {
 
-                // Merge guest session cart into the DB for the authenticated user
                 HttpSession session = request.getSession(false);
                 boolean hadGuestCart = false;
                 if (session != null) {
@@ -117,18 +104,12 @@ public class SecurityConfig {
         };
     }
 
-    /**
-     * 4) Configuração principal do Spring Security
-     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // 4.1) Registra o provider JPA/BCrypt acima
                 .authenticationProvider(authenticationProvider(passwordEncoder()))
 
-                // 4.2) Configura as autorizações por URL
                 .authorizeHttpRequests(auth -> auth
-                        // 4.2.1) login, register e POST de login devem ficar liberados
                         .requestMatchers(
                                 "/register",
                                 "/login",
@@ -142,32 +123,26 @@ public class SecurityConfig {
                                 "/guest/**"
                         ).permitAll()
 
-                        // 4.2.2) somente ROLE_ADMIN acessa /admin/** e /veiculo/**
                         .requestMatchers("/admin/**", "/veiculo/**")
-                        .hasAuthority("ADMIN") // ou .hasRole("ADMIN") se a base de dados guardar "ROLE_ADMIN"
+                        .hasAuthority("ADMIN")
 
-                        // 4.2.3) somente ROLE_USER acessa /clientes/** e /clientes
                         .requestMatchers("/clientes/**", "/clientes")
                         .hasAuthority("USER")  // ou .hasRole("USER") se gravar “ROLE_USER”
 
-                        // 4.2.4) qualquer outra rota exige, no mínimo, autenticação
                         .anyRequest().authenticated()
                 )
 
-                // 4.3) Configura o formulário de login
+
                 .formLogin(form -> form
-                        .loginPage("/login")                   // exibe login.html (GET /login)
-                        .usernameParameter("email")            // o campo “username” agora é “email”
-                        .passwordParameter("password")         // o campo “password” permanece
-                        .loginProcessingUrl("/login-process")  // o POST que Spring interceptará
-                        // 4.3.1) Ao autenticar com sucesso, chama nosso handler que redireciona conforme role
+                        .loginPage("/login")
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .loginProcessingUrl("/login-process")
                         .successHandler(customAuthenticationSuccessHandler())
-                        // 4.3.2) em caso de falha, volta para /login?error=true
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
 
-                // 4.4) Configuração de logout (pode ajustar a URL se desejar)
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout=true")
@@ -175,9 +150,6 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
-
-                // 4.5) CSRF protection enabled (Thymeleaf injects token in forms automatically)
-                // AJAX calls must include the X-CSRF-TOKEN header from the _csrf meta tag
                 ;
 
         return http.build();
