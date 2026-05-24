@@ -182,6 +182,8 @@ public class AdminController {
                     m.put("dataCompra", f.getDataCompra() != null ? f.getDataCompra().format(fmt) : "");
                     m.put("totalPago", f.getTotalPago());
                     m.put("metodoPagamento", f.getMetodoPagamento() != null ? f.getMetodoPagamento() : "");
+                    m.put("estado", f.getEstado() != null ? f.getEstado() : "Pendente");
+                    m.put("morada", f.getMorada() != null ? f.getMorada() : "");
                     return m;
                 }).collect(Collectors.toList());
 
@@ -210,6 +212,21 @@ public class AdminController {
                 }).collect(Collectors.toList());
             m.put("itens", itens);
             return ResponseEntity.ok(m);
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/admin/fatura/{id}/estado")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> atualizarEstadoFatura(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+        return faturaRepository.findById(id).map(f -> {
+            f.setEstado(body.get("estado"));
+            faturaRepository.save(f);
+            Map<String, Object> r = new HashMap<>();
+            r.put("success", true);
+            r.put("estado", f.getEstado());
+            return ResponseEntity.ok(r);
         }).orElse(ResponseEntity.notFound().build());
     }
 }

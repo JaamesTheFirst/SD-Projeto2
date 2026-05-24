@@ -14,6 +14,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -136,5 +138,25 @@ public class ClienteController {
         }
 
         return "veiculo_detalhe";
+    }
+
+    @GetMapping("/perfil/encomendas-json")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getMinhasEncomendas(Authentication auth) {
+        String email = auth.getName();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        List<Map<String, Object>> result = faturaRepository
+                .findByClienteEmailOrderByDataCompraDesc(email)
+                .stream().map(f -> {
+                    Map<String, Object> m = new java.util.LinkedHashMap<>();
+                    m.put("id", f.getId());
+                    m.put("dataCompra", f.getDataCompra() != null ? f.getDataCompra().format(fmt) : "");
+                    m.put("totalPago", f.getTotalPago());
+                    m.put("metodoPagamento", f.getMetodoPagamento() != null ? f.getMetodoPagamento() : "");
+                    m.put("morada", f.getMorada() != null ? f.getMorada() : "");
+                    m.put("estado", f.getEstado() != null ? f.getEstado() : "Pendente");
+                    return m;
+                }).collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 }

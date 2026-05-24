@@ -221,6 +221,94 @@ h1 {
 }
 .btn-pdf-download:hover { background: #e8b76a; transform: translateY(-1px); }
 
+#encomendasLista {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.fatura-card {
+    background-color: #231a16;
+    border: 1px solid rgba(212, 162, 89, 0.15);
+    border-radius: 10px;
+    padding: 20px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.fatura-card:hover {
+    border-color: #D4A259; /* Brilha a dourado ao passar o rato */
+}
+
+.fatura-esquerda {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.fatura-id {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #FFF8E7;
+}
+
+.badge-estado {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.fatura-direita {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+}
+
+.fatura-data {
+    color: rgba(255, 248, 231, 0.6);
+    font-size: 0.95rem;
+}
+
+.fatura-morada {
+    color: #FFF8E7;
+    font-size: 0.95rem;
+}
+
+.fatura-total {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #D4A259;
+    min-width: 100px;
+    text-align: right;
+}
+
+.btn-detalhes {
+    background-color: rgba(212, 162, 89, 0.05);
+    color: #D4A259;
+    border: 1px solid rgba(212, 162, 89, 0.4);
+    padding: 8px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.btn-detalhes:hover {
+    background-color: #D4A259;
+    color: #1a1412;
+    border-color: #D4A259;
+}
+
 @media (max-width: 768px) {
     .perfil-tabs { flex-direction: column; border-bottom: none; gap: 0.5rem; margin-bottom: 1.5rem; }
     .tab-btn { border-bottom: none; border-left: 2px solid transparent; text-align: left; padding: 0.75rem 1rem; background: rgba(255,248,231,0.02); border-radius: 4px; }

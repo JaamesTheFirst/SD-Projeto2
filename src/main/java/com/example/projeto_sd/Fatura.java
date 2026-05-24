@@ -29,6 +29,18 @@ public class Fatura {
     @JsonManagedReference
     private List<ItemFatura> itens;
 
+    @Column
+    private String morada;
+
+    @Column(nullable = false)
+    private String estado = "Pendente";
+
+    public String getMorada() { return morada; }
+    public void setMorada(String morada) { this.morada = morada; }
+
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+
     // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

@@ -45,7 +45,7 @@
         <div class="perfil-tabs">
             <button class="tab-btn active" onclick="openTab(event, 'tab-info')">Informações</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-stats')">Estatísticas</button>
-            <button class="tab-btn" onclick="openTab(event, 'tab-history')">Histórico</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-encomendas')">Encomendas</button>
         </div>
         
         <div class="perfil-content">
@@ -93,33 +93,11 @@
                     </div>
                 </div>
             </div>
-
-            <!-- ABA DE HISTÓRICO -->
-            <div id="tab-history" class="tab-content">
+            <!-- ABA DE ENCOMENDAS -->
+            <div id="tab-encomendas" class="tab-content">
                 <div class="perfil-section">
-                    <h2>Histórico de Compras</h2>
-                    
-                    <div th:if="${#lists.isEmpty(faturas)}" class="no-history">
-                        <p>Ainda não realizou nenhuma compra.</p>
-                        <a th:href="@{/cliente}" class="btn-comprar">Começar a Comprar</a>
-                    </div>
-                    
-                    <div th:if="${!#lists.isEmpty(faturas)}" class="faturas-list">
-                        <div class="fatura-card" th:each="fatura : ${faturas}">
-                            <div class="fatura-header">
-                                <div class="fatura-id">Fatura #<span th:text="${fatura.id}"></span></div>
-                                <div class="fatura-data" th:text="${#temporals.format(fatura.dataCompra, 'dd/MM/yyyy HH:mm')}"></div>
-                            </div>
-                            <div class="fatura-info">
-                                <div class="fatura-total">
-                                    Total: €<span th:text="${#numbers.formatDecimal(fatura.totalPago, 1, 2)}"></span>
-                                </div>
-                                <button class="btn-detalhes" th:onclick="'abrirDetalhes(' + ${fatura.id} + ')'">
-                                    Ver Detalhes
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <h2>As Minhas Encomendas</h2>
+                    <div id="encomendasLista">A carregar...</div>
                 </div>
             </div>
         </div>
@@ -168,6 +146,9 @@ function openTab(evt, tabName) {
         setTimeout(() => {
             carregarEstatisticas();
         }, 100);
+    }
+    if (tabName === 'tab-encomendas') {
+        carregarMinhasEncomendas();
     }
 }
 
@@ -346,6 +327,71 @@ function mostrarDetalhes(fatura) {
     `;
 }
 
+function carregarMinhasEncomendas() {
+    fetch('/perfil/encomendas-json')
+        .then(r => r.json())
+        .then(data => {
+            const lista = document.getElementById('encomendasLista');
+            if (!data.length) {
+                lista.innerHTML = '<p>Ainda não tens encomendas.</p>';
+                return;
+            }
+            lista.innerHTML = data.map(e => `
+                <div class="fatura-card" style="display: flex; align-items: center; justify-content: space-between; padding: 25px;">
+
+                    <div class="fatura-esquerda" style="min-width: 160px; display: flex; align-items: center;">
+                        <div class="fatura-id" style="margin: 0; font-size: 1.25rem; font-weight: bold; color: #FFF8E7;">
+                            Encomenda #${e.id}
+                        </div>
+                    </div>
+
+                    <div class="fatura-direita" style="display: flex; align-items: center; gap: 30px; flex-grow: 1; justify-content: space-between;">
+
+                        <div style="min-width: 110px; display: flex; align-items: center;">
+                            <span class="badge-estado" style="background:${estadoBg(e.estado)}; color:${estadoCor(e.estado)}; margin: 0; display: inline-block;">
+                                ${e.estado || 'Pendente'}
+                            </span>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 6px; min-width: 130px;">
+                            <span style="font-size:0.75rem; color:rgba(255, 248, 231, 0.4); text-transform:uppercase; letter-spacing: 0.5px;">Data</span>
+                            <span style="color: #FFF8E7; font-size: 0.95rem;">${e.dataCompra}</span>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 6px; min-width: 140px; max-width: 180px;">
+                            <span style="font-size:0.75rem; color:rgba(255, 248, 231, 0.4); text-transform:uppercase; letter-spacing: 0.5px;">Morada</span>
+                            <span style="color: #FFF8E7; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${e.morada || ''}">
+                                ${e.morada || 'Não definida'}
+                            </span>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 6px; min-width: 110px; text-align: right;">
+                            <span style="font-size:0.75rem; color:rgba(255, 248, 231, 0.4); text-transform:uppercase; letter-spacing: 0.5px;">Total Pago</span>
+                            <span style="font-size: 1.25rem; font-weight: bold; color: #D4A259;">€${parseFloat(e.totalPago).toFixed(2)}</span>
+                        </div>
+
+                        <a href="/api/fatura/${e.id}/pdf" class="btn-detalhes" style="height: fit-content; align-self: center; margin-left: 10px;">
+                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 5px; vertical-align: middle;">
+                                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                            </svg>
+                            PDF
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        });
+}
+
+function estadoCor(estado) {
+    const cores = {'Pendente':'#e67e22','Em preparação':'#3498db','Enviado':'#9b59b6','Entregue':'#27ae60'};
+    return cores[estado] || '#e67e22';
+}
+
+function estadoBg(estado) {
+    const cores = {'Pendente':'rgba(230,126,34,0.2)','Em preparação':'rgba(52,152,219,0.2)','Enviado':'rgba(155,89,182,0.2)','Entregue':'rgba(39,174,96,0.2)'};
+    return cores[estado] || 'rgba(230,126,34,0.2)';
+}
 function fecharModal() {
     document.getElementById('faturaModal').style.display = 'none';
 }

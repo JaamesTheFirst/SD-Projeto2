@@ -187,6 +187,7 @@ public class CarrinhoController {
 
     @PostMapping("/checkout")
     public String confirmarCompra(@RequestParam String metodoPagamento,
+                                  @RequestParam String morada,
                                   Authentication auth,
                                   RedirectAttributes redirectAttributes) {
         try {
@@ -210,6 +211,7 @@ public class CarrinhoController {
             fatura.setClienteEmail(clienteEmail);
             fatura.setDataCompra(LocalDateTime.now());
             fatura.setMetodoPagamento(metodoPagamento);
+            fatura.setMorada(morada);
 
             double total = 0;
             for (CarrinhoItem item : itens) {

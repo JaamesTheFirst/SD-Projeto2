@@ -34,6 +34,10 @@
             <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
             Compras
         </a>
+        <a href="#" onclick="openTab(event, 'tab-encomendas')">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            Encomendas
+        </a>
     </nav>
     <div class="sidebar-footer">
         <form th:action="@{/logout}" method="post" style="display:contents;">
@@ -306,6 +310,31 @@
         </div>
         <div id="compras-pagination" style="display:flex;gap:0.4rem;justify-content:center;margin-top:1rem;flex-wrap:wrap;"></div>
     </div>
+    <!-- ====== TAB: ENCOMENDAS ====== -->
+    <div id="tab-encomendas" class="tab-content">
+        <div class="top-bar-inner">
+            <input type="text" id="searchEncomendas" placeholder="Pesquisar por email..."
+                   oninput="filtrarEncomendas(this.value)"
+                   style="padding:.5rem 1rem; border-radius:8px; border:1px solid rgba(212,162,89,0.3); background:rgba(255,255,255,0.05); color:#FFF8E7; width:300px;" />
+        </div>
+        <table class="clientes-table" id="tabelaEncomendas">
+            <thead>
+            <tr>
+                <th>Nº</th>
+                <th>Cliente</th>
+                <th>Data</th>
+                <th>Morada</th>
+                <th>Pagamento</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Ação</th>
+            </tr>
+            </thead>
+            <tbody id="encomendasBody">
+            <tr><td colspan="8" style="text-align:center;">A carregar...</td></tr>
+            </tbody>
+        </table>
+    </div>
 
 </main>
 
@@ -456,6 +485,10 @@ function openTab(evt, tabName) {
         title.textContent = 'COMPRAS';
         actions.style.display = 'none';
         carregarCompras();
+    } else if (tabName === 'tab-encomendas') {
+        title.textContent = 'ENCOMENDAS';
+        actions.style.display = 'none';
+        carregarEncomendas();
     } else {
         title.textContent = tabName.replace('tab-','').toUpperCase();
         actions.style.display = 'none';
@@ -939,6 +972,58 @@ function escHtml(s) {
 function escAttr(s) {
     if (s == null) return '';
     return String(s).replace(/'/g,"\\'");
+}
+
+function carregarEncomendas(search = '') {
+    const csrf = document.querySelector('meta[name="_csrf"]')?.content || '';
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+    fetch('/admin/compras-json?search=' + encodeURIComponent(search))
+        .then(r => r.json())
+        .then(data => {
+            const tbody = document.getElementById('encomendasBody');
+            if (!data.length) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Sem encomendas.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(e => `
+                <tr>
+                    <td>#${e.id}</td>
+                    <td>${escHtml(e.clienteEmail)}</td>
+                    <td>${escHtml(e.dataCompra)}</td>
+                    <td>${escHtml(e.morada || '—')}</td>
+                    <td>${escHtml(e.metodoPagamento || '—')}</td>
+                    <td style="color:#D4A259;">€${parseFloat(e.totalPago).toFixed(2)}</td>
+                    <td><span style="color:${estadoCor(e.estado)}">${e.estado || 'Pendente'}</span></td>
+                    <td>
+                        <select onchange="mudarEstadoEncomenda(${e.id}, this.value)"
+                                style="background:#2a2a2a;color:#FFF8E7;border:1px solid rgba(212,162,89,0.3);border-radius:6px;padding:.3rem .5rem;">
+                            ${['Pendente','Em preparação','Enviado','Entregue'].map(s =>
+                `<option value="${s}" ${(e.estado||'Pendente')===s?'selected':''}>${s}</option>`
+            ).join('')}
+                        </select>
+                    </td>
+                </tr>
+            `).join('');
+        });
+}
+
+function estadoCor(estado) {
+    const cores = {'Pendente':'#e67e22','Em preparação':'#3498db','Enviado':'#9b59b6','Entregue':'#27ae60'};
+    return cores[estado] || '#e67e22';
+}
+
+function mudarEstadoEncomenda(id, estado) {
+    const csrf = document.querySelector('meta[name="_csrf"]')?.content || '';
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+    fetch(`/admin/fatura/${id}/estado`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', [csrfHeader]: csrf},
+        body: JSON.stringify({estado})
+    }).then(() => carregarEncomendas());
+}
+
+function filtrarEncomendas(search) {
+    carregarEncomendas(search);
 }
 </script>
 </body>
