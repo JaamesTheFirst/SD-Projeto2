@@ -211,3 +211,5 @@ src/main/java/com/example/projeto_sd/
 - **Gráficos:** Chart.js
 - **Build:** Gradle (Wrapper incluído)
 
+
+## nota: varias imagens foram apagadas de forma a que o ficheiro tenha o tamanho necessario para submeter no moodle
